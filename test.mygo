@@ -1,0 +1,26 @@
+func a(a int, a int) int {
+    var a int;
+    a = a;
+    echo b;
+    return 1;
+    a = 1 || (a && b) != c;
+    var b void;
+    b = ff();
+    echo max(a, b);
+    while(a != b) {
+        pass;
+    };
+    if(a == b || c == d && nil) {
+        pass;
+    };
+    if(a == b || c == d && nil) {
+        pass;
+    } else {
+        pass;
+    };
+    echo "this is + a == a dnio <<>?' \\";
+}
+
+func ff() void {
+    pass;
+}

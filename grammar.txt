@@ -1,0 +1,120 @@
+# 语法规则
+# ""包裹的是变量
+# ''包裹的是终结符
+# ->代表产生式
+# 忽略空格
+# | 代表或
+# #开头是注释，忽律本行
+# 可空行
+# <>是一些特殊终结符
+# <n> 代表 newLine \n 符号
+# <quot> 代表 "
+# <squot> 代表 '
+# <vertical> 代表 |
+# <rarrow> 代表 ->
+# <langle> 代表 <
+# <rangle> 代表 >
+# <hash> 代表 #
+# 产生式只能有 "" '' | <>，其它所有简写必须用额外变量表示
+# 产生式禁止换行
+
+# ------------- 基础组件 -----------------
+
+"spc" -> ' ' | "spc" ' '
+
+"letter" -> 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
+"digit" -> '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+
+# 要添加所有出现过的且合法的非终结符，因为 tokenizer 使用了简单贪心匹配
+"string_char" -> "letter" | "digit" | "escaped" | ' + ' | ' - ' | ' * ' | ' / ' | ' % ' | ' || ' | ' && ' | ' > ' | ' >= ' | ' < ' | ' <= ' | ' == ' | ' != ' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | '(' | ')' | <squot> | '[' | ']' | '{' | '}' | <vertical> | ':' | ';' | '?' | '/' | '<' | '>' | ' '
+
+"escaped" -> '\\' | '\"' | '\n' | '\t' | '\a'
+
+"int_literal" -> "digits"
+
+"digits" -> "digit" "digits" | "digit"
+
+"float_literal" -> "int_literal" "float_literal_post"
+
+"float_literal_post" -> '.' "digits"
+
+"bool_literal" -> 'true' | 'false'
+
+"string_literal" -> <quot> "string_literal_body" <quot>
+
+"string_literal_body" -> "string_char" "string_literal_body" | "string_char"
+
+"void_literal" -> 'nil'
+
+"literal" -> "int_literal" | "float_literal" | "bool_literal" | "void_literal" | "string_literal"
+
+"id" -> "id" "letter" | "id" "digit" | "id" '_' | "letter"
+
+"type" -> 'int' | 'float' | 'void' | 'string'
+
+# ------------- 函数结构 -----------------
+
+"program" -> "func_decl_list"
+
+"func_decl_list" -> "func_decl_list" "func_decl" | "func_decl"
+
+"func_decl" -> 'func' "spc" "id" '(' "func_decl_tail"
+"func_decl_tail" -> ')' "spc" "ret_type_and_func_body" | "param_list" ')' "spc" "ret_type_and_func_body"
+
+"param_list" -> "param_list" ',' ' ' "one_param" | "one_param"
+
+"one_param" -> "id" "spc" "type"
+
+"ret_type_and_func_body" -> "type" "spc" "block"
+
+# ------------- 语句 -----------------
+
+"block" -> '{' "block_after_left"
+"block_after_left" -> "stmt_list" "block_after_stmt" | "stmt_list" "block_after_stmt"
+"block_after_stmt" -> '}' | "spc" '}'
+
+"stmt_list" -> "stmt_list" "stmt_with_leading_space" ';' | "stmt_with_leading_space" ';'
+"stmt_with_leading_space" -> "spc" "stmt"
+
+"stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | 'pass'
+
+"decl_stmt" -> 'var' "spc" "id" "spc" "type"
+"assign_stmt" -> "id" ' = ' "expr"
+"echo_stmt" -> 'echo' "spc" "expr"
+"return_stmt" -> 'return' "spc" "expr"
+
+"while_stmt" -> 'while' '(' "expr" ')' ' ' "block"
+
+"if_else_stmt" -> 'if' '(' "expr" ')' ' ' "if_else_stmt_post"
+
+"if_else_stmt_post" -> "block" | "block" ' ' 'else' ' ' "block"
+
+# -------- 表达式 --------
+"expr" -> "or_expr"
+
+"or_expr" ->  "and_expr" ' || ' "and_expr" | "and_expr"
+
+"and_expr" -> "comp_expr" ' && ' "comp_expr" | "comp_expr"
+
+"comp_expr" -> "add_expr" "comp_op" "add_expr" | "add_expr"
+
+"comp_op" -> ' < ' | ' <= ' | ' > ' | ' >= ' | ' == ' | ' != '
+
+"add_expr" -> "mul_expr" "plus_or_minus_op" "mul_expr" | "mul_expr"
+"plus_or_minus_op" -> ' + ' | ' - '
+
+"mul_expr" -> "unary_expr" "mul_div_or_mod_op" "unary_expr" | "unary_expr"
+"mul_div_or_mod_op" -> ' * ' | ' / ' | ' % '
+
+"unary_expr" -> "unary_op" "primary_expr" | "primary_expr"
+
+"unary_op" -> '+' | '-' | '!' | '~'
+
+
+# -------- primary expression --------
+"primary_expr" -> '(' "expr" ')' | "id" | "literal" | "call_expr"
+
+# -------- 函数调用 --------
+"call_expr" -> "id" '(' "call_expr_post"
+"call_expr_post" -> "args" ')' | ')'
+"args" -> "expr" ',' "spc" "args" | "expr"

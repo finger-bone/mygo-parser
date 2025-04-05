@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>解析树可视化</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .node {
+            cursor: pointer;
+        }
+        .node circle {
+            stroke-width: 1.5px;
+        }
+        .node text {
+            font: 10px sans-serif;
+            pointer-events: none; /* 防止文本干扰鼠标事件 */
+            text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff; /* 文本轮廓，提高可读性 */
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 1.5px;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>解析树可视化</h1>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4682b4;"></div>
+                <span>非终结符</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff7f0e;"></div>
+                <span>终结符</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="expandAll">展开所有节点</button>
+            <button id="collapseAll">折叠所有节点</button>
+            <button id="resetZoom">重置缩放</button>
+            <button id="autoLayout">自动布局</button>
+            <div style="margin-top: 10px;">
+                <label for="nodeDistance">节点间距: </label>
+                <input type="range" id="nodeDistance" min="50" max="200" value="100" style="width: 150px;">
+                <span id="distanceValue">200</span>
+            </div>
+        </div>
+        
+        <div id="tree-container"></div>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // 加载解析树数据
+        d3.json('parser_tree.json').then(data => {
+            // 设置画布尺寸 - 增加高度和边距以适应复杂树结构
+            const width = document.getElementById('tree-container').clientWidth;
+            const height = 1500; // 增加高度以容纳更多节点
+            const margin = {top: 40, right: 120, bottom: 40, left: 120}; // 增加边距
+            
+            // 全局设置
+            let nodeDistance = 100; // 减小默认节点间距
+            
+            // 创建SVG容器
+            const svg = d3.select('#tree-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`)
+                .attr('id', 'main-group');
+            
+            // 添加缩放功能
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 3])
+                .on('zoom', (event) => {
+                    svg.attr('transform', event.transform);
+                });
+            
+            d3.select('#tree-container svg')
+                .call(zoom)
+                .on('dblclick.zoom', null);
+            
+            // 创建树形布局 - 使用自定义节点间距
+            const treeLayout = d3.tree()
+                .size([height - margin.top - margin.bottom, width - margin.left - margin.right])
+                .separation((a, b) => {
+                    // 增加节点间的水平间距，特别是对于不同父节点的节点
+                    return (a.parent === b.parent ? 0.8 : 1); // 减小节点间的垂直间距系数
+                });
+            
+            // 创建根节点
+            const root = d3.hierarchy(data);
+            
+            // 初始位置设置在左侧中间
+            root.x0 = height / 2;
+            root.y0 = 0;
+            
+            // 为每个节点分配唯一ID
+            let nodeId = 0;
+            root.descendants().forEach(d => {
+                d.id = nodeId++;
+                // 初始状态下折叠深度大于1的节点，减少初始显示的复杂度
+                if (d.depth > 1) {
+                    if (d.parent && !d.parent._children) {
+                        d.parent._children = [];
+                        d.parent.children.forEach(child => {
+                            d.parent._children.push(child);
+                        });
+                        d.parent.children = null;
+                    }
+                }
+            });
+            
+            // 更新树形图
+            update(root);
+            
+            // 展开/折叠所有节点的按钮功能
+            document.getElementById('expandAll').addEventListener('click', () => {
+                expandAll(root);
+                update(root);
+            });
+            
+            document.getElementById('collapseAll').addEventListener('click', () => {
+                root.children.forEach(collapse);
+                update(root);
+            });
+            
+            document.getElementById('resetZoom').addEventListener('click', () => {
+                d3.select('#tree-container svg')
+                    .transition()
+                    .duration(750)
+                    .call(zoom.transform, d3.zoomIdentity.translate(margin.left, margin.top));
+            });
+            
+            // 添加自动布局功能
+            document.getElementById('autoLayout').addEventListener('click', () => {
+                // 自动调整树的大小以适应当前节点数量
+                const visibleNodes = root.descendants().filter(d => !d.parent || d.parent.children);
+                const newHeight = Math.max(800, visibleNodes.length * 12); // 减小每个节点的垂直空间
+                
+                treeLayout.size([newHeight - margin.top - margin.bottom, width - margin.left - margin.right]);
+                update(root);
+                
+                // 自动缩放以适应整个树
+                const svgNode = d3.select('#tree-container svg').node();
+                const bounds = document.getElementById('main-group').getBBox();
+                const fullWidth = bounds.width;
+                const fullHeight = bounds.height;
+                
+                const scale = 0.9 / Math.max(fullWidth / (width - margin.left - margin.right), 
+                                             fullHeight / (height - margin.top - margin.bottom));
+                
+                const translateX = margin.left + (width - margin.left - margin.right - fullWidth * scale) / 2;
+                const translateY = margin.top + (height - margin.top - margin.bottom - fullHeight * scale) / 2;
+                
+                d3.select('#tree-container svg')
+                    .transition()
+                    .duration(750)
+                    .call(zoom.transform, d3.zoomIdentity.translate(translateX, translateY).scale(scale));
+            });
+            
+            // 添加节点间距调整功能
+            const distanceSlider = document.getElementById('nodeDistance');
+            const distanceValue = document.getElementById('distanceValue');
+            
+            distanceSlider.addEventListener('input', function() {
+                // 更新全局节点间距变量
+                nodeDistance = parseInt(this.value);
+                distanceValue.textContent = nodeDistance;
+                
+                // 重新渲染树
+                update(root);
+            });
+            
+            // 初始化滑块值
+            distanceSlider.value = nodeDistance;
+            distanceValue.textContent = nodeDistance;
+            
+            // 更新树形图的函数
+            function update(source) {
+                // 计算新的树形布局
+                const treeData = treeLayout(root);
+                
+                // 获取所有节点和连线
+                const nodes = treeData.descendants();
+                const links = treeData.links();
+                
+                // 设置节点的y坐标，使树形图水平展开 - 使用全局节点间距变量
+                nodes.forEach(d => {
+                    d.y = d.depth * nodeDistance; // 使用全局变量控制间距
+                    // 为相邻节点添加一些随机偏移，避免文本重叠
+                    if (d.parent && d.parent.children && d.parent.children.length > 1) {
+                        const siblings = d.parent.children;
+                        const idx = siblings.indexOf(d);
+                        if (idx > 0 && Math.abs(d.x - siblings[idx-1].x) < 15) {
+                            d.x += 5; // 添加小偏移
+                        }
+                    }
+                });
+                
+                // 更新节点
+                const node = svg.selectAll('.node')
+                    .data(nodes, d => d.id || (d.id = ++nodeId));
+                
+                // 创建新节点
+                const nodeEnter = node.enter().append('g')
+                    .attr('class', 'node')
+                    .attr('transform', d => `translate(${source.y0},${source.x0})`)
+                    .on('click', (event, d) => {
+                        // 点击节点时展开或折叠
+                        if (d.children) {
+                            d._children = d.children;
+                            d.children = null;
+                        } else if (d._children) {
+                            d.children = d._children;
+                            d._children = null;
+                        }
+                        update(d);
+                    })
+                    .on('mouseover', (event, d) => {
+                        // 显示节点详细信息
+                        const tooltip = d3.select('#tooltip');
+                        let content = '';
+                        
+                        if (d.data.type === 'terminal') {
+                            content = `类型: 终结符<br>值: "${d.data.value}"`;
+                        } else {
+                            content = `类型: 非终结符<br>值: "${d.data.value}"`;
+                        }
+                        
+                        tooltip.html(content)
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 28) + 'px')
+                            .style('opacity', 0.9);
+                    })
+                    .on('mouseout', () => {
+                        // 隐藏提示框
+                        d3.select('#tooltip').style('opacity', 0);
+                    });
+                
+                // 添加节点圆圈
+                nodeEnter.append('circle')
+                    .attr('r', 5) // 减小圆圈大小
+                    .style('fill', d => {
+                        // 根据节点类型设置不同颜色
+                        if (d.data.type === 'terminal') {
+                            return '#ff7f0e'; // 终结符为橙色
+                        } else {
+                            return '#4682b4'; // 非终结符为蓝色
+                        }
+                    })
+                    .style('stroke', d => {
+                        return d._children ? '#888' : '#ddd';
+                    });
+                
+                // 添加节点文本标签
+                nodeEnter.append('text')
+                    .attr('dy', '.35em')
+                    .attr('x', d => d.children || d._children ? -10 : 10) // 调整文本位置
+                    .attr('text-anchor', d => d.children || d._children ? 'end' : 'start')
+                    .style('font-size', '10px') // 减小字体大小
+                    .text(d => {
+                        // 显示节点值
+                        if (d.data.value) {
+                            return d.data.value.length > 15 ? d.data.value.substring(0, 15) + '...' : d.data.value;
+                        }
+                        return '';
+                    });
+                
+                // 更新现有节点位置
+                const nodeUpdate = nodeEnter.merge(node);
+                
+                nodeUpdate.transition()
+                    .duration(750)
+                    .attr('transform', d => `translate(${d.y},${d.x})`);
+                
+                nodeUpdate.select('circle')
+                    .attr('r', 5) // 减小圆圈大小
+                    .style('fill', d => {
+                        if (d.data.type === 'terminal') {
+                            return '#ff7f0e';
+                        } else {
+                            return '#4682b4';
+                        }
+                    })
+                    .style('stroke', d => d._children ? '#888' : '#ddd');
+                
+                // 移除退出的节点
+                const nodeExit = node.exit().transition()
+                    .duration(750)
+                    .attr('transform', d => `translate(${source.y},${source.x})`)
+                    .remove();
+                
+                nodeExit.select('circle')
+                    .attr('r', 0);
+                
+                nodeExit.select('text')
+                    .style('fill-opacity', 0);
+                
+                // 更新连线
+                const link = svg.selectAll('.link')
+                    .data(links, d => d.target.id);
+                
+                // 创建新连线
+                const linkEnter = link.enter().insert('path', 'g')
+                    .attr('class', 'link')
+                    .attr('d', d => {
+                        const o = {x: source.x0, y: source.y0};
+                        return diagonal(o, o);
+                    });
+                
+                // 更新现有连线
+                linkEnter.merge(link).transition()
+                    .duration(750)
+                    .attr('d', d => diagonal(d.source, d.target));
+                
+                // 移除退出的连线
+                link.exit().transition()
+                    .duration(750)
+                    .attr('d', d => {
+                        const o = {x: source.x, y: source.y};
+                        return diagonal(o, o);
+                    })
+                    .remove();
+                
+                // 保存旧位置用于过渡动画
+                nodes.forEach(d => {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
+                });
+            }
+            
+            // 创建曲线连线
+            function diagonal(s, d) {
+                return `M ${s.y} ${s.x}
+                        C ${(s.y + d.y) / 2} ${s.x},
+                          ${(s.y + d.y) / 2} ${d.x},
+                          ${d.y} ${d.x}`;
+            }
+            
+            // 折叠节点及其子节点
+            function collapse(d) {
+                if (d.children) {
+                    d._children = d.children;
+                    d._children.forEach(collapse);
+                    d.children = null;
+                }
+            }
+            
+            // 展开所有节点
+            function expandAll(d) {
+                if (d._children) {
+                    d.children = d._children;
+                    d._children = null;
+                }
+                if (d.children) {
+                    d.children.forEach(expandAll);
+                }
+            }
+        }).catch(error => {
+            console.error('加载数据出错:', error);
+            document.getElementById('tree-container').innerHTML = 
+                '<div style="color: red; text-align: center; margin-top: 50px;">' +
+                '<h3>加载数据出错</h3>' +
+                '<p>请确保 parser_tree.json 文件存在且格式正确</p>' +
+                '<p>错误详情: ' + error.message + '</p>' +
+                '</div>';
+        });
+    </script>
+</body>
+</html>
