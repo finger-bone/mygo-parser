@@ -204,6 +204,9 @@ namespace slr {
         
         // 打印分析表
         void print_parse_table() const;
+        
+        // 导出解析表和项目集为JSON
+        std::string to_json() const;
     };
 }
 

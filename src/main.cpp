@@ -84,6 +84,12 @@ int main() {
     
     // 打印SLR1分析表
     // parser.print_parse_table();
+    
+    // 导出解析表和项目集为JSON
+    std::ofstream parser_json("slr_parser.json");
+    parser_json << parser.to_json();
+    parser_json.close();
+    std::cout << "SLR parser data saved to slr_parser.json" << std::endl;
 
     // 将token转换为SLRSymbol
     std::vector<slr::SLRSymbol> symbols;

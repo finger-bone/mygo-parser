@@ -615,4 +615,119 @@ namespace slr {
             std::cout << std::endl;
         }
     }
+    
+    // 导出解析表和项目集为JSON
+    std::string SLR1Parser::to_json() const {
+        nlohmann::json result;
+        
+        // 收集所有终结符和非终结符
+        std::vector<SLRSymbol> terminals;
+        std::vector<SLRSymbol> non_terminals;
+        
+        for (const auto& prod : productions) {
+            SLRSymbol nt(prod.first, SLRSymbolType::NON_TERMINAL);
+            if (std::find(non_terminals.begin(), non_terminals.end(), nt) == non_terminals.end()) {
+                non_terminals.push_back(nt);
+            }
+            
+            for (const auto& symbol : prod.second) {
+                if (is_terminal(symbol.type) && 
+                    std::find(terminals.begin(), terminals.end(), symbol) == terminals.end()) {
+                    terminals.push_back(symbol);
+                }
+            }
+        }
+        
+        // 添加结束符号
+        terminals.push_back(SLRSymbol::get_eos_symbol());
+        
+        // 导出产生式
+        nlohmann::json productions_json = nlohmann::json::array();
+        for (size_t i = 0; i < productions.size(); ++i) {
+            nlohmann::json prod;
+            prod["index"] = i;
+            prod["left"] = productions[i].first;
+            
+            nlohmann::json right = nlohmann::json::array();
+            for (const auto& symbol : productions[i].second) {
+                nlohmann::json sym;
+                sym["value"] = symbol.value;
+                sym["type"] = is_terminal(symbol.type) ? "terminal" : "non-terminal";
+                right.push_back(sym);
+            }
+            prod["right"] = right;
+            productions_json.push_back(prod);
+        }
+        result["productions"] = productions_json;
+        
+        // 导出项目集族
+        nlohmann::json item_sets_json = nlohmann::json::array();
+        for (size_t i = 0; i < item_sets.size(); ++i) {
+            nlohmann::json item_set;
+            item_set["state"] = i;
+            
+            nlohmann::json items = nlohmann::json::array();
+            for (const auto& item : item_sets[i]) {
+                nlohmann::json item_json;
+                item_json["non_terminal"] = item.non_terminal;
+                
+                nlohmann::json production = nlohmann::json::array();
+                for (const auto& symbol : item.production) {
+                    nlohmann::json sym;
+                    sym["value"] = symbol.value;
+                    sym["type"] = is_terminal(symbol.type) ? "terminal" : "non-terminal";
+                    production.push_back(sym);
+                }
+                item_json["production"] = production;
+                item_json["dot_position"] = item.dot_position;
+                items.push_back(item_json);
+            }
+            item_set["items"] = items;
+            item_sets_json.push_back(item_set);
+        }
+        result["item_sets"] = item_sets_json;
+        
+        // 导出ACTION表
+        nlohmann::json action_table_json = nlohmann::json::array();
+        for (size_t i = 0; i < item_sets.size(); ++i) {
+            nlohmann::json state_actions;
+            state_actions["state"] = i;
+            
+            nlohmann::json actions = nlohmann::json::object();
+            for (const auto& terminal : terminals) {
+                if (action_table.find(i) != action_table.end() && 
+                    action_table.at(i).find(terminal) != action_table.at(i).end()) {
+                    const Action& action = action_table.at(i).at(terminal);
+                    nlohmann::json action_json;
+                    action_json["type"] = static_cast<int>(action.type);
+                    action_json["value"] = action.value;
+                    action_json["display"] = action.to_string();
+                    actions[terminal.value] = action_json;
+                }
+            }
+            state_actions["actions"] = actions;
+            action_table_json.push_back(state_actions);
+        }
+        result["action_table"] = action_table_json;
+        
+        // 导出GOTO表
+        nlohmann::json goto_table_json = nlohmann::json::array();
+        for (size_t i = 0; i < item_sets.size(); ++i) {
+            nlohmann::json state_gotos;
+            state_gotos["state"] = i;
+            
+            nlohmann::json gotos = nlohmann::json::object();
+            for (const auto& non_terminal : non_terminals) {
+                if (goto_table.find(i) != goto_table.end() && 
+                    goto_table.at(i).find(non_terminal) != goto_table.at(i).end()) {
+                    gotos[non_terminal.value] = goto_table.at(i).at(non_terminal);
+                }
+            }
+            state_gotos["gotos"] = gotos;
+            goto_table_json.push_back(state_gotos);
+        }
+        result["goto_table"] = goto_table_json;
+        
+        return result.dump(2); // 缩进2个空格，使输出更易读
+    }
 }
