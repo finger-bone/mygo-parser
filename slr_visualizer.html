@@ -231,7 +231,8 @@
         // 格式化符号显示
         function formatSymbol(symbol, type) {
             const className = type === "terminal" ? "terminal" : "non-terminal";
-            return `<span class="${className}">${symbol}</span>`;
+            const displaySymbol = symbol.replace(/ /g, '🔸');
+            return `<span class="${className}">${displaySymbol}</span>`;
         }
         
         // 格式化项目显示，将点号替换为⬇️

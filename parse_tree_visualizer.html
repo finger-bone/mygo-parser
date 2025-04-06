@@ -297,7 +297,7 @@
                         let content = '';
                         
                         if (d.data.type === 'terminal') {
-                            content = `类型: 终结符<br>值: "${d.data.value}"`;
+                            content = `类型: 终结符<br>值: "${d.data.value.replace(/ /g, '🔸')}"`;
                         } else {
                             content = `类型: 非终结符<br>值: "${d.data.value}"`;
                         }
@@ -336,7 +336,8 @@
                     .text(d => {
                         // 显示节点值
                         if (d.data.value) {
-                            return d.data.value.length > 15 ? d.data.value.substring(0, 15) + '...' : d.data.value;
+                            let displayValue = d.data.value.replace(/ /g, '🔸');
+                            return displayValue.length > 15 ? displayValue.substring(0, 15) + '...' : displayValue;
                         }
                         return '';
                     });
