@@ -21,5 +21,8 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
+view:
+	bunx serve .
+
 clean:
 	rm -rf $(OBJDIR) $(TARGET)
