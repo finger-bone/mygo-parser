@@ -30,7 +30,7 @@ func a(a int, a int) int {
     } else {
         pass;
     };
-    echo "this is + a == a dnio <<>?' \\";
+    echo "thisis";
 }
 
 func ff() void {
