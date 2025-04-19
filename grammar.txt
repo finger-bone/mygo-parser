@@ -26,15 +26,15 @@
 "digit" -> '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 
 # 要添加所有出现过的且合法的非终结符，因为 tokenizer 使用了简单贪心匹配
-"string_char" -> "letter" | "digit" | "escaped" | ' + ' | ' - ' | ' * ' | ' / ' | ' % ' | ' || ' | ' && ' | ' > ' | ' >= ' | ' < ' | ' <= ' | ' == ' | ' != ' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | '(' | ')' | <squot> | '[' | ']' | '{' | '}' | <vertical> | ':' | ';' | '?' | '/' | '<' | '>' | ' '
+"string_char" -> "letter" | "digit" | "escaped" | ' + ' | ' - ' | ' * ' | ' / ' | ' % ' | ' || ' | ' && ' | ' > ' | ' >= ' | ' < ' | ' <= ' | ' == ' | ' != ' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | '(' | ')' | <squot> | '[' | ']' | '{' | '}' | <vertical> | ':' | ';' | '?' | '/' | '<' | '>' | ' ' | ' else ' | 'if' | '.' | 'int' | 'float' | 'void' | 'string' | '_' | ',' | 'pass' | ' = ' | '=' | '+' | '-' | '*' | '/' | '!' | '~' | 'if' | 'while' | 'true' | 'false' | 'return' | 'nil' | ' | ' | ' & ' | 'var' | 'echo'
 
 "escaped" -> '\\' | '\"' | '\n' | '\t' | '\a'
 
-"int_literal" -> "digits"
+"uint_literal" -> "digits"
 
 "digits" -> "digit" "digits" | "digit"
 
-"float_literal" -> "int_literal" "float_literal_post"
+"float_literal" -> "uint_literal" "float_literal_post"
 
 "float_literal_post" -> '.' "digits"
 
@@ -46,7 +46,7 @@
 
 "void_literal" -> 'nil'
 
-"literal" -> "int_literal" | "float_literal" | "bool_literal" | "void_literal" | "string_literal"
+"literal" -> "uint_literal" | "float_literal" | "bool_literal" | "void_literal" | "string_literal"
 
 "id" -> "id" "letter" | "id" "digit" | "id" '_' | "letter"
 
@@ -61,7 +61,7 @@
 "func_decl" -> 'func' "spc" "id" '(' "func_decl_tail"
 "func_decl_tail" -> ')' "spc" "ret_type_and_func_body" | "param_list" ')' "spc" "ret_type_and_func_body"
 
-"param_list" -> "param_list" ',' ' ' "one_param" | "one_param"
+"param_list" -> "param_list" ',' "spc" "one_param" | "one_param"
 
 "one_param" -> "id" "spc" "type"
 
@@ -87,7 +87,9 @@
 
 "if_else_stmt" -> 'if' '(' "expr" ')' ' ' "if_else_stmt_post"
 
-"if_else_stmt_post" -> "block" | "block" ' ' 'else' ' ' "block"
+"if_else_stmt_post" -> "block" | "block" ' else ' "if_else_stmt_post_else"
+
+"if_else_stmt_post_else" -> "block" | "if_else_stmt"
 
 # -------- 表达式 --------
 "expr" -> "or_expr"
@@ -101,7 +103,7 @@
 "comp_op" -> ' < ' | ' <= ' | ' > ' | ' >= ' | ' == ' | ' != '
 
 "add_expr" -> "mul_expr" "plus_or_minus_op" "mul_expr" | "mul_expr"
-"plus_or_minus_op" -> ' + ' | ' - '
+"plus_or_minus_op" -> ' + ' | ' - ' | ' & ' | ' | '
 
 "mul_expr" -> "unary_expr" "mul_div_or_mod_op" "unary_expr" | "unary_expr"
 "mul_div_or_mod_op" -> ' * ' | ' / ' | ' % '
@@ -109,7 +111,6 @@
 "unary_expr" -> "unary_op" "primary_expr" | "primary_expr"
 
 "unary_op" -> '+' | '-' | '!' | '~'
-
 
 # -------- primary expression --------
 "primary_expr" -> '(' "expr" ')' | "id" | "literal" | "call_expr"
