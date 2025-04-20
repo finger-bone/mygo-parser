@@ -9,26 +9,18 @@ func a(a int, a int) int {
     echo max(a, b);
     while(a != b) {
         pass;
-    };
-    if(a == b || c == d && nil) {
-        pass;
-    };
-    if(a == b || c == d && nil) {
-        pass;
-    } else {
-        pass;
-    };
-    if(a == c || d) {
-        pass;
-    } else {
-        a = 1;
-    };
-    if(a == c) {
-        pass;
-    } else if(a == b) {
-        pass;
-    } else {
-        pass;
+        if(a == c || d) {
+            pass;
+        } else {
+            a = 1;
+        };
+        if(a == c) {
+            pass;
+        } else if(a == b) {
+            pass;
+        } else {
+            pass;
+        };
     };
     echo "this is";
 }
