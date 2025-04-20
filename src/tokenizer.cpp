@@ -27,6 +27,10 @@ bool is_letter(char c) {
     return std::isalpha(c);
 }
 
+bool is_digit(char c) {
+    return '0' <= c && '9' >= 'c';
+}
+
 std::optional<Token> Tokenizer::next_token() {
     // 如果已经处理完所有输入，则返回空
     if (is_end()) {
@@ -80,7 +84,7 @@ std::optional<Token> Tokenizer::next_token() {
             if (substr == term_value) {
                 if (is_all_letters(term_value)) {
                     size_t next_pos = position + term_value.length();
-                    if (next_pos < input.size() && (is_letter(input[next_pos]) || input[next_pos] == '_')) {
+                    if (next_pos < input.size() && (is_letter(input[next_pos]) || input[next_pos] == '_' || is_digit(input[next_pos]))) {
                         continue;
                     }
                 }

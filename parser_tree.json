@@ -1375,22 +1375,6 @@
                                                                                                                       ],
                                                                                                                       "type": "non-terminal",
                                                                                                                       "value": "letter"
-                                                                                                                    },
-                                                                                                                    {
-                                                                                                                      "children": [
-                                                                                                                        {
-                                                                                                                          "children": [
-                                                                                                                            {
-                                                                                                                              "type": "terminal",
-                                                                                                                              "value": "f"
-                                                                                                                            }
-                                                                                                                          ],
-                                                                                                                          "type": "non-terminal",
-                                                                                                                          "value": "letter"
-                                                                                                                        }
-                                                                                                                      ],
-                                                                                                                      "type": "non-terminal",
-                                                                                                                      "value": "id_post"
                                                                                                                     }
                                                                                                                   ],
                                                                                                                   "type": "non-terminal",
@@ -1550,43 +1534,11 @@
                                                                                                                   "children": [
                                                                                                                     {
                                                                                                                       "type": "terminal",
-                                                                                                                      "value": "m"
+                                                                                                                      "value": "x"
                                                                                                                     }
                                                                                                                   ],
                                                                                                                   "type": "non-terminal",
                                                                                                                   "value": "letter"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                  "children": [
-                                                                                                                    {
-                                                                                                                      "children": [
-                                                                                                                        {
-                                                                                                                          "children": [
-                                                                                                                            {
-                                                                                                                              "type": "terminal",
-                                                                                                                              "value": "a"
-                                                                                                                            }
-                                                                                                                          ],
-                                                                                                                          "type": "non-terminal",
-                                                                                                                          "value": "letter"
-                                                                                                                        }
-                                                                                                                      ],
-                                                                                                                      "type": "non-terminal",
-                                                                                                                      "value": "id_post"
-                                                                                                                    },
-                                                                                                                    {
-                                                                                                                      "children": [
-                                                                                                                        {
-                                                                                                                          "type": "terminal",
-                                                                                                                          "value": "x"
-                                                                                                                        }
-                                                                                                                      ],
-                                                                                                                      "type": "non-terminal",
-                                                                                                                      "value": "letter"
-                                                                                                                    }
-                                                                                                                  ],
-                                                                                                                  "type": "non-terminal",
-                                                                                                                  "value": "id_post"
                                                                                                                 }
                                                                                                               ],
                                                                                                               "type": "non-terminal",
@@ -5373,22 +5325,6 @@
                   ],
                   "type": "non-terminal",
                   "value": "letter"
-                },
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "type": "terminal",
-                          "value": "f"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "letter"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "id_post"
                 }
               ],
               "type": "non-terminal",
