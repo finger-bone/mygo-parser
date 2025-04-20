@@ -15,34 +15,85 @@ void Tokenizer::sort_terminals() {
     });
 }
 
+// 判断字符串是否全为字母
+bool is_all_letters(const std::string& str) {
+    return std::all_of(str.begin(), str.end(), [](char c) {
+        return std::isalpha(c);
+    });
+}
+
+// 判断字符是否为字母
+bool is_letter(char c) {
+    return std::isalpha(c);
+}
+
 std::optional<Token> Tokenizer::next_token() {
     // 如果已经处理完所有输入，则返回空
     if (is_end()) {
         return std::nullopt;
     }
 
-    // 尝试匹配每个终结符（按照长度从长到短）
-    for (const auto& terminal : terminals) {
-        const std::string& term_value = terminal.value;
-        
-        // 如果剩余输入长度小于终结符长度，则跳过
-        if (position + term_value.length() > input.size()) {
-            continue;
-        }
-        
-        // 尝试匹配
-        std::string substr = input.substr(position, term_value.length());
-        if (substr == term_value) {
-            // 匹配成功，更新位置并返回token
-            position += term_value.length();
-            return Token(substr, terminal);
-        }
+    // 检查是否遇到双引号
+    if (input[position] == '"') {
+        in_string_mode = !in_string_mode;
+        position++;
+        return Token("\"", grammar::Terminal("\"")); // 返回双引号token
     }
 
-    // 如果没有匹配到任何终结符，则报错并跳过当前字符
-    std::cerr << "Error: Unexpected character '" << input[position] << "' at position " << position << std::endl;
-    position++;
-    return next_token(); // 递归调用，尝试匹配下一个字符
+    if (in_string_mode) {
+        // 在字符串模式下，只匹配以反斜杠开头的terminal和单字符terminal
+        for (const auto& terminal : terminals) {
+            const std::string& term_value = terminal.value;
+            
+            // 跳过长度大于1的非转义序列
+            if (term_value.length() > 1 && term_value[0] != '\\') {
+                continue;
+            }
+            
+            // 如果剩余输入长度小于终结符长度，则跳过
+            if (position + term_value.length() > input.size()) {
+                continue;
+            }
+            
+            // 尝试匹配
+            std::string substr = input.substr(position, term_value.length());
+            if (substr == term_value) {
+                position += term_value.length();
+                return Token(substr, terminal);
+            }
+        }
+
+        // 在字符串模式下，如果没有匹配到特殊字符，则作为普通字符处理
+        std::string char_str(1, input[position]);
+        position++;
+        return Token(char_str, grammar::Terminal(char_str));
+    } else {
+        // 正常模式下的匹配逻辑
+        for (const auto& terminal : terminals) {
+            const std::string& term_value = terminal.value;
+            
+            if (position + term_value.length() > input.size()) {
+                continue;
+            }
+            
+            std::string substr = input.substr(position, term_value.length());
+            if (substr == term_value) {
+                if (is_all_letters(term_value)) {
+                    size_t next_pos = position + term_value.length();
+                    if (next_pos < input.size() && (is_letter(input[next_pos]) || input[next_pos] == '_')) {
+                        continue;
+                    }
+                }
+                position += term_value.length();
+                return Token(substr, terminal);
+            }
+        }
+
+        // 如果没有匹配到任何终结符，则报错并跳过当前字符
+        std::cerr << "Error: Unexpected character '" << input[position] << "' at position " << position << std::endl;
+        position++;
+        return next_token(); // 递归调用，尝试匹配下一个字符
+    }
 }
 
 } // namespace tokenizer

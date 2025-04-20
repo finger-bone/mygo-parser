@@ -31,6 +31,7 @@ private:
     std::vector<grammar::Terminal> terminals;
     std::string input;
     size_t position;
+    bool in_string_mode = false;
 
     // 按照终结符长度排序（从长到短）
     void sort_terminals();
