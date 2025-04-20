@@ -30,7 +30,7 @@ func a(a int, a int) int {
     } else {
         pass;
     };
-    echo "thisis";
+    echo "this is";
 }
 
 func ff() void {
