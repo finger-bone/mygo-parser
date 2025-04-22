@@ -2,6 +2,11 @@
 
 语法是无空产生式的 SLR(1) 文法。语法文件使用确定性的递归下降算法解析。
 
+## 可视化
+
+[解析树](https://finger-bone.github.io/mygo-parser/parse_tree_visualizer)
+[SLR1解析器信息](https://finger-bone.github.io/mygo-parser/slr_visualizer)
+
 ## Grammar File Format
 
 The grammar file follows these simple rules:
