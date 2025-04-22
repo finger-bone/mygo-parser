@@ -84,9 +84,31 @@ namespace std {
             return std::hash<std::string>{}(item.to_string());
         }
     };
+    
+    template<>
+    struct hash<slr::Production> {
+        size_t operator()(const slr::Production& prod) const noexcept {
+            size_t h = std::hash<std::string>{}(prod.left);
+            for (const auto& symbol : prod.right) {
+                h ^= std::hash<slr::SLRSymbol>{}(symbol) + 0x9e3779b9 + (h << 6) + (h >> 2);
+            }
+            return h;
+        }
+    };
 }
 
 namespace slr {
+    struct Production {
+        std::string left; // 左侧非终结符
+        std::vector<SLRSymbol> right; // 右侧符号序列
+        
+        Production(std::string left, std::vector<SLRSymbol> right) : left(left), right(right) {}
+        
+        bool operator==(const Production& other) const {
+            return left == other.left && right == other.right;
+        }
+    };
+    
     struct ParserTreeNode {
         SLRSymbol symbol;
         std::vector<ParserTreeNode> children;
@@ -124,7 +146,7 @@ namespace slr {
             }
         }
     };
-    
+
     // SLR1解析器类
     class SLR1Parser {
     private:
@@ -133,7 +155,7 @@ namespace slr {
         std::string augmented_start_symbol;
         
         // 增广文法的产生式
-        std::vector<std::pair<std::string, std::vector<SLRSymbol>>> productions;
+        std::vector<Production> productions;
         
         // 项目集族
         std::vector<std::unordered_set<LR0Item>> item_sets;
@@ -210,7 +232,7 @@ namespace slr {
         }
         
         // 获取产生式
-        const std::vector<std::pair<std::string, std::vector<SLRSymbol>>>& get_productions() const {
+        const std::vector<Production>& get_productions() const {
             return productions;
         }
         

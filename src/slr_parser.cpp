@@ -94,12 +94,12 @@ namespace slr
                 std::string nt_name = current.production[current.dot_position].value;
 
                 // 遍历该非终结符的所有产生式
-                for (const auto &prod_pair : productions)
+                for (const auto &prod : productions)
                 {
-                    if (prod_pair.first == nt_name)
+                    if (prod.left == nt_name)
                     {
                         // 创建新项目，点在产生式开头
-                        LR0Item new_item(nt_name, prod_pair.second, 0);
+                        LR0Item new_item(nt_name, prod.right, 0);
 
                         // 如果新项目不在结果集中，添加它
                         if (result.find(new_item) == result.end())
@@ -149,9 +149,9 @@ namespace slr
         // 添加增广文法的起始项目
         for (size_t i = 0; i < productions.size(); ++i)
         {
-            if (productions[i].first == augmented_start_symbol)
+            if (productions[i].left == augmented_start_symbol)
             {
-                initial_item.insert(LR0Item(augmented_start_symbol, productions[i].second, 0));
+                initial_item.insert(LR0Item(augmented_start_symbol, productions[i].right, 0));
                 break;
             }
         }
@@ -244,7 +244,7 @@ namespace slr
         // 初始化：所有终结符的FIRST集合就是它们自己
         for (const auto &prod : productions)
         {
-            for (const auto &symbol : prod.second)
+            for (const auto &symbol : prod.right)
             {
                 if (is_terminal(symbol.type))
                 {
@@ -256,9 +256,9 @@ namespace slr
         // 初始化：所有非终结符的FIRST集合为空
         for (const auto &prod : productions)
         {
-            if (first_sets.find(prod.first) == first_sets.end())
+            if (first_sets.find(prod.left) == first_sets.end())
             {
-                first_sets[prod.first] = std::unordered_set<SLRSymbol>();
+                first_sets[prod.left] = std::unordered_set<SLRSymbol>();
             }
         }
 
@@ -269,8 +269,8 @@ namespace slr
 
             for (const auto &prod : productions)
             {
-                std::string nt = prod.first;
-                const auto &rhs = prod.second;
+                std::string nt = prod.left;
+                const auto &rhs = prod.right;
 
                 // 如果产生式为空，跳过
                 if (rhs.empty())
@@ -337,7 +337,7 @@ namespace slr
         // 初始化：所有非终结符的FOLLOW集合为空
         for (const auto &prod : productions)
         {
-            follow_sets[prod.first] = std::unordered_set<SLRSymbol>();
+            follow_sets[prod.left] = std::unordered_set<SLRSymbol>();
         }
 
         // 将#加入到增广文法起始符号的FOLLOW集合
@@ -351,8 +351,8 @@ namespace slr
 
             for (const auto &prod : productions)
             {
-                std::string nt = prod.first;
-                const auto &rhs = prod.second;
+                std::string nt = prod.left;
+                const auto &rhs = prod.right;
 
                 for (size_t i = 0; i < rhs.size(); ++i)
                 {
@@ -405,7 +405,7 @@ namespace slr
         // 添加S'->S产生式
         std::vector<SLRSymbol> new_prod;
         new_prod.push_back(SLRSymbol(start_symbol, SLRSymbolType::NON_TERMINAL));
-        productions.push_back(std::make_pair(augmented_start_symbol, new_prod));
+        productions.push_back(Production(augmented_start_symbol, new_prod));
 
         // 添加原始文法的产生式
         for (const auto &rule_pair : grammar.rule_map)
@@ -418,7 +418,7 @@ namespace slr
                 {
                     symbols.push_back(SLRSymbol(sym));
                 }
-                productions.push_back(std::make_pair(rule.left.name, symbols));
+                productions.push_back(Production(rule.left.name, symbols));
             }
         }
     }
@@ -460,8 +460,8 @@ namespace slr
                         int prod_index = -1;
                         for (size_t j = 0; j < productions.size(); ++j)
                         {
-                            if (productions[j].first == item.non_terminal &&
-                                productions[j].second == item.production)
+                            if (productions[j].left == item.non_terminal &&
+                                productions[j].right == item.production)
                             {
                                 prod_index = j;
                                 break;
@@ -562,10 +562,10 @@ namespace slr
         const auto &prod = productions[prod_index];
 
         // 创建新的语法树节点
-        ParserTreeNode new_node(SLRSymbol(prod.first, SLRSymbolType::NON_TERMINAL));
+        ParserTreeNode new_node(SLRSymbol(prod.left, SLRSymbolType::NON_TERMINAL));
 
         // 弹出产生式右侧的符号和状态
-        for (size_t i = 0; i < prod.second.size(); ++i)
+        for (size_t i = 0; i < prod.right.size(); ++i)
         {
             state_stack.pop();
             new_node.children.insert(new_node.children.begin(), symbol_stack.top());
@@ -576,7 +576,7 @@ namespace slr
         int current_state = state_stack.top();
 
         // 查找GOTO
-        SLRSymbol nt(prod.first, SLRSymbolType::NON_TERMINAL);
+        SLRSymbol nt(prod.left, SLRSymbolType::NON_TERMINAL);
         if (goto_table[current_state].find(nt) == goto_table[current_state].end())
         {
             std::cerr << "语法错误：状态" << current_state << "，非终结符" << nt.to_string() << "，当前token编号" << input_pos << std::endl;
@@ -677,13 +677,13 @@ namespace slr
 
         for (const auto &prod : productions)
         {
-            SLRSymbol nt(prod.first, SLRSymbolType::NON_TERMINAL);
+            SLRSymbol nt(prod.left, SLRSymbolType::NON_TERMINAL);
             if (std::find(non_terminals.begin(), non_terminals.end(), nt) == non_terminals.end())
             {
                 non_terminals.push_back(nt);
             }
 
-            for (const auto &symbol : prod.second)
+            for (const auto &symbol : prod.right)
             {
                 if (is_terminal(symbol.type) &&
                     std::find(terminals.begin(), terminals.end(), symbol) == terminals.end())
@@ -751,8 +751,8 @@ namespace slr
         std::cout << "\n===== 产生式 =====" << std::endl;
         for (size_t i = 0; i < productions.size(); ++i)
         {
-            std::cout << i << ": " << productions[i].first << " -> ";
-            for (const auto &symbol : productions[i].second)
+            std::cout << i << ": " << productions[i].left << " -> ";
+            for (const auto &symbol : productions[i].right)
             {
                 std::cout << symbol.value << " ";
             }
@@ -771,13 +771,13 @@ namespace slr
 
         for (const auto &prod : productions)
         {
-            SLRSymbol nt(prod.first, SLRSymbolType::NON_TERMINAL);
+            SLRSymbol nt(prod.left, SLRSymbolType::NON_TERMINAL);
             if (std::find(non_terminals.begin(), non_terminals.end(), nt) == non_terminals.end())
             {
                 non_terminals.push_back(nt);
             }
 
-            for (const auto &symbol : prod.second)
+            for (const auto &symbol : prod.right)
             {
                 if (is_terminal(symbol.type) &&
                     std::find(terminals.begin(), terminals.end(), symbol) == terminals.end())
@@ -796,10 +796,10 @@ namespace slr
         {
             nlohmann::json prod;
             prod["index"] = i;
-            prod["left"] = productions[i].first;
+            prod["left"] = productions[i].left;
 
             nlohmann::json right = nlohmann::json::array();
-            for (const auto &symbol : productions[i].second)
+            for (const auto &symbol : productions[i].right)
             {
                 nlohmann::json sym;
                 sym["value"] = symbol.value;
