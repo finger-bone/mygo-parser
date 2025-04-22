@@ -37,14 +37,19 @@ std::optional<Token> Tokenizer::next_token() {
         return std::nullopt;
     }
 
+    // 遇到空格或换行符时，跳过它们
+    while (position < input.size() && (input[position] == ' ' || input[position] == '\n')) {
+        position++;
+    }
+
     // 检查是否遇到双引号
     if (input[position] == '"') {
-        in_string_mode = !in_string_mode;
+        this->in_string_mode = !this->in_string_mode;
         position++;
         return Token("\"", grammar::Terminal("\"")); // 返回双引号token
     }
 
-    if (in_string_mode) {
+    if (this->in_string_mode) {
         // 在字符串模式下，只匹配以反斜杠开头的terminal和单字符terminal
         for (const auto& terminal : terminals) {
             const std::string& term_value = terminal.value;
@@ -82,10 +87,11 @@ std::optional<Token> Tokenizer::next_token() {
             
             std::string substr = input.substr(position, term_value.length());
             if (substr == term_value) {
-                if (is_all_letters(term_value)) {
+                if (is_all_letters(term_value) && term_value.size() != 1) {
+                    // 如果紧跟的下一个字符是字母/数字/下划线，说明是标识符，跳过
                     size_t next_pos = position + term_value.length();
-                    if (next_pos < input.size() && (is_letter(input[next_pos]) || input[next_pos] == '_' || is_digit(input[next_pos]))) {
-                        continue;
+                    if (next_pos < input.size() && (is_letter(input[next_pos]) || is_digit(input[next_pos]) || input[next_pos] == '_')) {
+                        continue; // 跳过标识符
                     }
                 }
                 position += term_value.length();
@@ -96,6 +102,8 @@ std::optional<Token> Tokenizer::next_token() {
         // 如果没有匹配到任何终结符，则报错并跳过当前字符
         std::cerr << "Error: Unexpected character '" << input[position] << "' at position " << position << std::endl;
         position++;
+        std::cerr << "Now string mode is " << this->in_string_mode << std::endl;
+        throw std::runtime_error("Error: Unexpected character");
         return next_token(); // 递归调用，尝试匹配下一个字符
     }
 }

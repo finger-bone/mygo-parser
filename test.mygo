@@ -23,6 +23,7 @@ func a(a int, a int) int {
         };
     };
     echo "this is";
+    pass;
 }
 
 func ff() void {
