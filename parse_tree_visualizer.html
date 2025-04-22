@@ -166,8 +166,8 @@
             const root = d3.hierarchy(data);
             
             // 初始位置设置在左侧中间
-            root.x0 = height / 2;
-            root.y0 = 0;
+            root.x0 = (height - margin.top - margin.bottom) / 2 + margin.top; // 垂直居中
+            root.y0 = 60; // 向右偏移，避免出界
             
             // 为每个节点分配唯一ID
             let nodeId = 0;
