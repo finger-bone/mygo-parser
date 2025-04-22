@@ -187,6 +187,18 @@ namespace slr {
         // 解析输入符号序列
         bool parse(const std::vector<SLRSymbol>& input, ParserTreeNode& root);
         
+        // 执行移进操作
+        void perform_shift(int next_state, const SLRSymbol& symbol, std::stack<int>& state_stack, std::stack<ParserTreeNode>& symbol_stack, size_t& input_pos);
+        
+        // 执行规约操作
+        bool perform_reduce(int prod_index, std::stack<int>& state_stack, std::stack<ParserTreeNode>& symbol_stack, size_t input_pos);
+        
+        // 执行接受操作
+        bool perform_accept(std::stack<ParserTreeNode>& symbol_stack, ParserTreeNode& root, size_t input_pos);
+        
+        // 处理语法错误
+        bool handle_error(int state, const SLRSymbol& symbol, size_t input_pos);
+        
         // 获取ACTION表
         const std::unordered_map<int, std::unordered_map<SLRSymbol, Action>>& get_action_table() const {
             return action_table;
