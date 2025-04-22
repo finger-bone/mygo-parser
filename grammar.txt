@@ -75,14 +75,18 @@
 
 "stmt_list" -> "stmt_list" "stmt" ';' | "stmt" ';'
 
-"stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | 'pass' | 'break' | 'continue' | "expr" | "for_stmt" | "decl_and_assign_stmt"
+"stmt" -> "single_stmt" | "comma_stmt"
+
+"single_stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | 'pass' | 'break' | 'continue' | "expr" | "for_stmt" | "decl_and_assign_stmt"
+
+"comma_stmt" -> "single_stmt" ',' "stmt"
 
 "decl_stmt" -> 'var' "id" "type"
 "assign_stmt" -> "id" '=' "expr"
 "decl_and_assign_stmt" -> "id" ':=' "expr"
 "echo_stmt" -> 'echo' "expr"
 "return_stmt" -> 'return' "expr"
-"for_stmt" -> 'for' '(' "stmt" ',' "expr" ',' "stmt" ')'
+"for_stmt" -> 'for' '(' "stmt" ';' "expr" ';' "stmt" ')' "block"
 "while_stmt" -> 'while' '(' "expr" ')' "block"
 "if_else_stmt" -> 'if' '(' "expr" ')' "if_else_stmt_post"
 "if_else_stmt_post" -> "block" | "block" 'else' "if_else_stmt_post_else"
