@@ -39,6 +39,15 @@ struct NonTerminal {
 
 using Symbol = std::variant<Terminal, NonTerminal>;
 
+struct ASTRule {
+    bool do_flatten;
+    bool use_all_children;
+    std::vector<size_t> children;
+    ASTRule(bool do_flatten, bool use_all_children, std::vector<size_t> children) : do_flatten(do_flatten), use_all_children(use_all_children), children(children) {}
+    static std::optional<ASTRule> parse(const std::string& str);
+    std::string to_string() const;
+};
+
 struct ProductionList {
     std::vector<std::vector<Symbol>> production;
 
@@ -50,7 +59,8 @@ struct ProductionList {
 struct GrammarRule {
     NonTerminal left;
     ProductionList right;
-    GrammarRule(NonTerminal left, ProductionList right) : left(left), right(right) {}
+    ASTRule ast_rule;
+    GrammarRule(NonTerminal left, ProductionList right, ASTRule ast_rule) : left(left), right(right), ast_rule(ast_rule) {}
     static std::optional<GrammarRule> parse(const std::string& str);
     std::string to_string() const;
 };
@@ -62,15 +72,14 @@ std::optional<std::vector<GrammarRule>> parse_grammar_from_file(const std::strin
 void print_grammar(const std::vector<GrammarRule>& grammar);
 
 struct Grammar {
-    std::unordered_map<std::string, GrammarRule> rule_map;
+    std::unordered_map<std::string, std::vector<GrammarRule>> rule_map;
 
     Grammar(const std::vector<GrammarRule>& rules) {
         for (const auto& rule : rules) {
             if (rule_map.find(rule.left.name) == rule_map.end()) {
-                rule_map.insert({rule.left.name, rule});
+                rule_map[rule.left.name] = {rule};
             } else {
-                const auto &it = rule_map.find(rule.left.name);
-                it->second.right.production.insert(it->second.right.production.end(), rule.right.production.begin(), rule.right.production.end());
+                rule_map[rule.left.name].push_back(rule);
             }
         }
     }

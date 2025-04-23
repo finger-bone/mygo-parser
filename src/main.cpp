@@ -27,7 +27,7 @@ int main() {
         std::cerr << "Failed to open input file: " << input_file << std::endl;
         return 1;
     }
-    
+
     std::stringstream buffer;
     buffer << file.rdbuf();
     std::string input = buffer.str();
@@ -100,7 +100,7 @@ int main() {
     
     // 解析token序列
     std::cout << "\n开始解析输入..." << std::endl;
-    slr::ParserTreeNode root(slr::SLRSymbol("", slr::SLRSymbolType::NON_TERMINAL));
+    slr::CSTNode root(slr::SLRSymbol("", slr::SLRSymbolType::NON_TERMINAL));
     bool success = parser.parse(symbols, root);
     
     if (success) {
@@ -111,10 +111,16 @@ int main() {
 
     std::cout << "----------------------------------------" << std::endl;
 
-    std::ofstream parser_tree("parser_tree.json");
+    std::ofstream parser_tree("parser_tree_cst.json");
     parser_tree << root.to_json();
     parser_tree.close();
-    std::cout << "Parser tree saved to parser_tree.json" << std::endl;
+    std::cout << "Parser tree saved to parser_tree_cst.json" << std::endl;
+
+    slr::ASTNode ast_root = root.to_ast();
+    std::ofstream parser_ast("parser_tree_ast.json");
+    parser_ast << ast_root.to_json();
+    parser_ast.close();
+    std::cout << "Parser tree saved to parser_tree_ast.json" << std::endl;
 
     return 0;
 }

@@ -6,6 +6,8 @@ func a(a int, a int) int {
     a = 1 || (a && b) != c;
     var b void;
     b = ff();
+    var f float;
+    f = 0.1;
     echo max(a, b);
     while(a != b) {
         pass;

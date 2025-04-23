@@ -163,17 +163,79 @@ std::optional<ProductionList> ProductionList::parse(const std::string& str) {
     return ProductionList{productions};
 }
 
+std::optional<ASTRule> ASTRule::parse(const std::string& str) {
+    if (str.empty()) {
+        std::cerr << "Error: AST rule cannot be an empty string" << std::endl;
+        return std::nullopt;
+    }
+
+    bool do_flatten = false;
+    bool use_all_children = false;
+    std::vector<size_t> children;
+
+    size_t semicolon_pos = str.find(';');
+    if (semicolon_pos == std::string::npos) {
+        std::cerr << "Error: Missing ';' in AST rule: " << str << std::endl;
+        return std::nullopt;
+    }
+
+    // 判断是否扁平化
+    std::string prefix = str.substr(0, semicolon_pos);
+    do_flatten = (prefix.find('*') != std::string::npos);
+
+    // 获取分号后的部分
+    std::string content = str.substr(semicolon_pos + 1);
+    std::string trimmed;
+    std::remove_copy_if(content.begin(), content.end(), std::back_inserter(trimmed), ::isspace);
+
+    if (trimmed == "-") {
+        use_all_children = false;
+        children.clear();
+    } else if (trimmed.empty()) {
+        use_all_children = true;
+    } else {
+        use_all_children = false;
+        std::istringstream iss(trimmed);
+        std::string token;
+        while (std::getline(iss, token, ',')) {
+            try {
+                size_t index = std::stoul(token);
+                children.push_back(index);
+            } catch (const std::exception& e) {
+                std::cerr << "Error: Invalid child index '" << token << "' in AST rule: " << str << std::endl;
+                return std::nullopt;
+            }
+        }
+    }
+
+    return ASTRule{do_flatten, use_all_children, children};
+}
+
 std::optional<GrammarRule> GrammarRule::parse(const std::string& str) {
     if (str.empty()) {
         std::cerr << "Error: Grammar rule cannot be an empty string" << std::endl;
         return std::nullopt;
     }
+    // 找到第一个被 [] 包裹的部分，代表 AST 规则
+    size_t ast_start = str.find('[');
+    size_t ast_end = str.find(']');
+    if (ast_start == std::string::npos || ast_end == std::string::npos || ast_start >= ast_end) {
+        std::cerr << "Error: Grammar rule must contain AST rule enclosed in square brackets. Invalid rule: " << str << std::endl;
+        return std::nullopt;
+    }
+    std::string ast_str = str.substr(ast_start + 1, ast_end - ast_start - 1);
+    auto ast_rule = ASTRule::parse(ast_str);
+    if (!ast_rule) {
+        std::cerr << "Error: Invalid AST rule in grammar rule: " << ast_str << std::endl;
+        return std::nullopt;
+    }
+
     size_t arrow_pos = str.find("->");
     if (arrow_pos == std::string::npos) {
         std::cerr << "Error: Grammar rule must contain '->'. Invalid rule: " << str << std::endl;
         return std::nullopt;
     }
-    std::string lhs = str.substr(0, arrow_pos);
+    std::string lhs = str.substr(0, arrow_pos).substr(ast_end + 1, -1);
     std::string rhs = str.substr(arrow_pos + 2);
     
     // 解析左侧的变量（非终结符），忽略左右两边多余的空白（包括换行）
@@ -187,7 +249,7 @@ std::optional<GrammarRule> GrammarRule::parse(const std::string& str) {
     if (!prod_list) {
         return std::nullopt;
     }
-    return GrammarRule{non_term.value(), prod_list.value()};
+    return GrammarRule{non_term.value(), prod_list.value(), ast_rule.value()};
 }
 
 std::optional<std::vector<GrammarRule>> parse_grammar(const std::string& grammar_str) {
@@ -234,8 +296,24 @@ std::string ProductionList::to_string() const {
     return result;
 }
 
+std::string ASTRule::to_string() const {
+    std::string result = this->do_flatten? "flatten" : "";
+    result += ";";
+    if(!this->use_all_children){
+        for (size_t i = 0; i < this->children.size(); i++) {
+            result += std::to_string(this->children[i]);
+            if(i!= this->children.size() - 1){
+                result += ",";
+            }
+        }
+    } else {
+        result += "use_all_children";
+    }
+    return result;
+}
+
 std::string GrammarRule::to_string() const {
-    return this->left.to_string() + " -> " + this->right.to_string();
+    return this->ast_rule.to_string() + " " + this->left.to_string() + " -> " + this->right.to_string();
 }
 
 std::optional<std::vector<GrammarRule>> parse_grammar_from_file(const std::string& filename) {
@@ -262,10 +340,12 @@ std::vector<NonTerminal> Grammar::find_undefined_non_terminals() const {
 
     for(const auto& [left, right]: this->rule_map) {
         left_terminals.insert(NonTerminal(left));
-        for(const auto& prod: right.right.production) {
-            for(const auto& sym: prod) {
-                if(std::holds_alternative<NonTerminal>(sym)) {
-                    right_terminals.insert(std::get<NonTerminal>(sym));
+        for(const auto& rule: right) {
+            for(const auto& prod: rule.right.production) {
+                for(const auto& sym: prod) {
+                    if(std::holds_alternative<grammar::NonTerminal>(sym)) {
+                        right_terminals.insert(std::get<grammar::NonTerminal>(sym));
+                    }
                 }
             }
         }
@@ -283,10 +363,12 @@ std::vector<NonTerminal> Grammar::find_undefined_non_terminals() const {
 std::vector<Terminal> Grammar::extract_terminals() const {
     std::unordered_set<grammar::Terminal> terminals;
     for (const auto& [left, right] : this->rule_map) {
-        for (const auto& prod : right.right.production) {
-            for (const auto& sym : prod) {
-                if (std::holds_alternative<grammar::Terminal>(sym)) {
-                    terminals.insert(std::get<grammar::Terminal>(sym));
+        for(const auto& rule: right) {
+            for(const auto& prod: rule.right.production) {
+                for(const auto& sym: prod) {
+                    if(std::holds_alternative<grammar::Terminal>(sym)) {
+                        terminals.insert(std::get<grammar::Terminal>(sym));
+                    }
                 }
             }
         }

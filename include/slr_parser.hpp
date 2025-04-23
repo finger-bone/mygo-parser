@@ -5,11 +5,13 @@
 #include <vector>
 #include <variant>
 #include <stack>
+#include <sstream>
 
 #include "grammar_parser.hpp"
 #include "./nlohmann/json.hpp"
 
 namespace slr {
+
     enum class SLRSymbolType  {
         TERMINAL,
         NON_TERMINAL,
@@ -50,6 +52,46 @@ namespace slr {
         bool operator==(const SLRSymbol& other) const {
             return value == other.value && type == other.type;
         }
+    };
+
+    struct Production {
+        std::string left; // 左侧非终结符
+        std::vector<SLRSymbol> right; // 右侧符号序列
+        std::vector<size_t> ast_children;
+        bool do_flatten = false;
+        bool use_all_children = false;
+
+        Production(std::string left, std::vector<SLRSymbol> right, std::vector<size_t> ast_children, bool do_flatten, bool use_all_children)
+            : left(left), right(right), ast_children(ast_children), do_flatten(do_flatten), use_all_children(use_all_children) {}
+        
+        bool operator==(const Production& other) const {
+            return left == other.left && right == other.right;
+        }
+
+        std::string to_string() const {
+            std::stringstream ss;
+            ss << left << " -> ";
+            for (size_t i = 0; i < right.size(); i++) {
+                ss << right[i].to_string();
+                if (i != right.size() - 1) {
+                    ss << " ";
+                }
+            }
+            ss << " [ ";
+            if(do_flatten) {
+                ss << "*";
+            }
+            ss << ";";
+            for (size_t i = 0; i < ast_children.size(); i++) {
+                ss << ast_children[i];
+                if (i!= ast_children.size() - 1) {
+                    ss << ", ";
+                }
+            }
+            ss << " ] ";
+            return ss.str();
+        }
+
     };
 
     struct LR0Item {
@@ -98,26 +140,60 @@ namespace std {
 }
 
 namespace slr {
-    struct Production {
-        std::string left; // 左侧非终结符
-        std::vector<SLRSymbol> right; // 右侧符号序列
-        
-        Production(std::string left, std::vector<SLRSymbol> right) : left(left), right(right) {}
-        
-        bool operator==(const Production& other) const {
-            return left == other.left && right == other.right;
-        }
-    };
-    
-    struct ParserTreeNode {
+    struct ASTNode {
         SLRSymbol symbol;
-        std::vector<ParserTreeNode> children;
-        ParserTreeNode(SLRSymbol symbol) : symbol(symbol) {}
-        ParserTreeNode(SLRSymbol symbol, std::vector<ParserTreeNode> children) : symbol(symbol), children(children) {}
-        void add_child(ParserTreeNode child) {
+        std::vector<ASTNode> children;
+        std::optional<Production> production;
+        ASTNode(SLRSymbol symbol, std::optional<Production> production=std::nullopt) : symbol(symbol), production(production) {}
+        ASTNode(SLRSymbol symbol, std::vector<ASTNode> children, std::optional<Production> production=std::nullopt) : symbol(symbol), children(children), production(production) {}
+        void add_child(ASTNode child) {
             children.push_back(child);
         }
         std::string to_json() const;
+        std::string to_string() const {
+            std::stringstream ss;
+            ss << symbol.to_string();
+            if (!children.empty()) {
+                ss << "(";
+                for (size_t i = 0; i < children.size(); i++) {
+                    ss << children[i].to_string();
+                    if (i != children.size() - 1) {
+                        ss << ", ";
+                    }
+                }
+                ss << ")";
+            }
+            return ss.str();
+        }
+    };
+    
+    struct CSTNode {
+        SLRSymbol symbol;
+        std::vector<CSTNode> children;
+        std::optional<Production> production;
+
+        CSTNode(SLRSymbol symbol, std::optional<Production> production=std::nullopt) : symbol(symbol), production(production) {}
+        CSTNode(SLRSymbol symbol, std::vector<CSTNode> children, std::optional<Production> production=std::nullopt) : symbol(symbol), children(children), production(production) {}
+        void add_child(CSTNode child) {
+            children.push_back(child);
+        }
+        ASTNode to_ast() const;
+        std::string to_json() const;
+        std::string to_string() const {
+            std::stringstream ss;
+            ss << symbol.to_string();
+            if (!children.empty()) {
+                ss << "(";
+                for (size_t i = 0; i < children.size(); i++) {
+                    ss << children[i].to_string();
+                    if (i!= children.size() - 1) {
+                        ss << ", ";
+                    }
+                }
+                ss << ")";
+            }
+            return ss.str();
+        }
     };
     
     // 动作类型：移进、规约、接受、错误
@@ -207,16 +283,16 @@ namespace slr {
         bool build_parse_table(const std::string& start_symbol);
         
         // 解析输入符号序列
-        bool parse(const std::vector<SLRSymbol>& input, ParserTreeNode& root);
+        bool parse(const std::vector<SLRSymbol>& input, CSTNode& root);
         
         // 执行移进操作
-        void perform_shift(int next_state, const SLRSymbol& symbol, std::stack<int>& state_stack, std::stack<ParserTreeNode>& symbol_stack, size_t& input_pos);
+        void perform_shift(int next_state, const SLRSymbol& symbol, std::stack<int>& state_stack, std::stack<CSTNode>& symbol_stack, size_t& input_pos);
         
         // 执行规约操作
-        bool perform_reduce(int prod_index, std::stack<int>& state_stack, std::stack<ParserTreeNode>& symbol_stack, size_t input_pos);
+        bool perform_reduce(int prod_index, std::stack<int>& state_stack, std::stack<CSTNode>& symbol_stack, size_t input_pos);
         
         // 执行接受操作
-        bool perform_accept(std::stack<ParserTreeNode>& symbol_stack, ParserTreeNode& root, size_t input_pos);
+        bool perform_accept(std::stack<CSTNode>& symbol_stack, CSTNode& root, size_t input_pos);
         
         // 处理语法错误
         bool handle_error(int state, const SLRSymbol& symbol, size_t input_pos);

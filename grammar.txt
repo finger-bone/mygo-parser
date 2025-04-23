@@ -1,7 +1,8 @@
 # 语法规则
+# [AST信息] {语法制导翻译信息} 产生式
 # ""包裹的是变量
 # ''包裹的是终结符
-# ->代表产生式
+# ->代表产生符号
 # 忽略空格
 # | 代表或
 # #开头是注释，忽律本行
@@ -17,106 +18,128 @@
 # <hash> 代表 #
 # 产生式只能有 "" '' | <>，其它所有简写必须用额外变量表示
 # 产生式禁止换行
+# 产生式开头必须标记抽象语法树信息，语法为 [展开标记; 子树1, 子树2]
+# 如果标记 *，这个非终结符为中间非终结符，不承载语义信息，在这个节点作为子树插入其它节点时，会进行展平，否则什么都不做。如果没有展开标记，则不处理
+# 如果写为 [展开标记;]，则自动插入所有子树
+# 子树可以用直接写数字（即第 i 个终结符/非终结符），也可以用非终结符的名称
+# 产生式开头还要写语法制导翻译信息
 
 # ------------- 基础组件 -----------------
 
-"letter" -> 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
 
-"digit" -> '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+[*;] "letter" -> 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
 
-"string_char" -> "letter" | "digit" | "escaped" | ',' | '.' | ';' | ' ' | '(' | ')' | '+' | '-' | '!' | '~' | '#' | '{' | '}' | '='
+[*;] "digit" -> '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 
-"escaped" -> '\\' | '\"' | '\n' | '\t' | '\a'
+[*;] "string_char" -> "letter" | "digit" | "escaped" | ',' | '.' | ';' | ' ' | '(' | ')' | '+' | '-' | '!' | '~' | '#' | '{' | '}' | '='
 
-"uint_literal" -> "digits"
+[*;] "escaped" -> '\\' | '\"' | '\n' | '\t' | '\a'
 
-"digits" -> "digit" "digits" | "digit"
+[;] "uint_literal" -> "digits"
 
-"float_literal" -> "uint_literal" "float_literal_post"
+[;] "digits" -> "digits_wrapper"
+[*;] "digits_wrapper" -> "digit" "digits_wrapper"
+[*;] "digits_wrapper" -> "digit"
 
-"float_literal_post" -> '.' "digits"
+[;0,2] "float_literal" -> "digits" '.' "digits"
 
-"bool_literal" -> 'true' | 'false'
+[;] "bool_literal" -> 'true' | 'false'
 
-"string_literal" -> <quot> "string_literal_body" <quot>
+[;1] "string_literal" -> <quot> "string_literal_body" <quot>
 
-"string_literal_body" -> "string_char" "string_literal_body" | "string_char"
+[*;] "string_literal_body" -> "string_char" "string_literal_body" | "string_char"
 
-"void_literal" -> 'nil'
+[;] "void_literal" -> 'nil'
 
-"literal" -> "uint_literal" | "float_literal" | "bool_literal" | "void_literal" | "string_literal"
+[*;] "literal" -> "uint_literal" | "float_literal" | "bool_literal" | "void_literal" | "string_literal"
 
-"id" -> "letter" "id_post" | "letter"
+[;] "id" -> "id_wrapper"
+[*;] "id_wrapper" -> '_' | "letter" | "id_wrapper" '_' | "id_wrapper" "digit" | "id_wrapper" "letter"
 
-"id_post" -> "letter" | '_' | "digit" | "id_post" "letter" | "id_post" '_' | "id_post" "digit"
-
-"type" -> 'int' | 'float' | 'void' | 'string'
+[;] "type" -> 'int' | 'float' | 'void' | 'string'
 
 # ------------- 函数结构 -----------------
 
-"program" -> "func_decl_list"
+[;] "program" -> "func_decl_list"
 
-"func_decl_list" -> "func_decl_list" "func_decl" | "func_decl"
+[*;] "func_decl_list" -> "func_decl_list" "func_decl" | "func_decl"
 
-"func_decl" -> 'func' "id" '(' "func_decl_tail"
-"func_decl_tail" -> ')' "ret_type_and_func_body" | "param_list" ')' "ret_type_and_func_body"
+[;1,3] "func_decl" -> 'func' "id" '(' "func_decl_tail"
 
-"param_list" -> "param_list" ',' "one_param" | "one_param"
+[*;1] "func_decl_tail" -> ')' "ret_type_and_func_body"
+[*;0,2] "func_decl_tail" -> "param_list" ')' "ret_type_and_func_body"
 
-"one_param" -> "id" "type"
+[*;0,2] "param_list" -> "param_list" ',' "one_param"
+[*;] "param_list" -> "one_param"
 
-"ret_type_and_func_body" -> "type" "block"
+[;] "one_param" -> "id" "type"
+
+[*;] "ret_type_and_func_body" -> "type" "block"
 
 # ------------- 语句 -----------------
 
-"block" -> '{' "block_after_left"
-"block_after_left" -> "stmt_list" "block_after_stmt" | "stmt_list" "block_after_stmt"
-"block_after_stmt" -> '}'
+[;1] "block" -> '{' "stmt_list" '}'
 
-"stmt_list" -> "stmt_list" "stmt" ';' | "stmt" ';'
+[*;0,1] "stmt_list" -> "stmt_list" "stmt" ';'
+[*;0] "stmt_list" -> "stmt" ';'
 
-"stmt" -> "single_stmt" | "comma_stmt"
+[*;] "stmt" -> "single_stmt" | "comma_stmt"
 
-"single_stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | 'pass' | 'break' | 'continue' | "expr" | "for_stmt" | "decl_and_assign_stmt"
+[*;] "single_stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | 'pass' | 'break' | 'continue' | "expr" | "for_stmt" | "decl_and_assign_stmt"
 
-"comma_stmt" -> "single_stmt" ',' "stmt"
+[;0,2] "comma_stmt" -> "single_stmt" ',' "stmt"
 
-"decl_stmt" -> 'var' "id" "type"
-"assign_stmt" -> "id" '=' "expr"
-"decl_and_assign_stmt" -> "id" ':=' "expr"
-"echo_stmt" -> 'echo' "expr"
-"return_stmt" -> 'return' "expr"
-"for_stmt" -> 'for' '(' "stmt" ';' "expr" ';' "stmt" ')' "block"
-"while_stmt" -> 'while' '(' "expr" ')' "block"
-"if_else_stmt" -> 'if' '(' "expr" ')' "if_else_stmt_post"
-"if_else_stmt_post" -> "block" | "block" 'else' "if_else_stmt_post_else"
-"if_else_stmt_post_else" -> "block" | "if_else_stmt"
+[;1,2] "decl_stmt" -> 'var' "id" "type"
+[;0,2] "assign_stmt" -> "id" '=' "expr"
+[;0,2] "decl_and_assign_stmt" -> "id" ':=' "expr"
+[;1] "echo_stmt" -> 'echo' "expr"
+[;1] "return_stmt" -> 'return' "expr"
+[;2,4,6,8] "for_stmt" -> 'for' '(' "stmt" ';' "expr" ';' "stmt" ')' "block"
+[;2,4] "while_stmt" -> 'while' '(' "expr" ')' "block"
+[;2,4] "if_else_stmt" -> 'if' '(' "expr" ')' "if_else_stmt_post"
+
+[*;] "if_else_stmt_post" -> "block"
+[*;] "if_else_stmt_post" -> "block" 'else' "if_else_stmt_post_else"
+[*;] "if_else_stmt_post_else" -> "block" | "if_else_stmt"
 
 # -------- 表达式 --------
-"expr" -> "or_expr"
+[*;] "expr" -> "or_expr"
 
-"or_expr" ->  "and_expr" '||' "and_expr" | "and_expr"
+[;] "or_expr" ->  "and_expr" '||' "and_expr"
+[*;] "or_expr" -> "and_expr"
 
-"and_expr" -> "comp_expr" '&&' "comp_expr" | "comp_expr"
+[;] "and_expr" -> "comp_expr" '&&' "comp_expr"
+[*;] "and_expr" -> "comp_expr"
 
-"comp_expr" -> "add_expr" "comp_op" "add_expr" | "add_expr"
+[;] "comp_expr" -> "add_expr" "comp_op" "add_expr"
+[*;] "comp_expr" -> "add_expr"
 
-"comp_op" -> '<' | '<=' | '>' | '>=' | '==' | '!='
+[*;] "comp_op" -> '<' | '<=' | '>' | '>=' | '==' | '!='
 
-"add_expr" -> "mul_expr" "plus_or_minus_op" "mul_expr" | "mul_expr"
-"plus_or_minus_op" -> '+' | '-' | '&' | '|'
+[;] "add_expr" -> "mul_expr" "plus_or_minus_op" "mul_expr"
+[*;] "add_expr" -> "mul_expr"
 
-"mul_expr" -> "unary_expr" "mul_div_or_mod_op" "unary_expr" | "unary_expr"
-"mul_div_or_mod_op" -> '*' | '/' | '%'
+[*;] "plus_or_minus_op" -> '+' | '-' | '&' | '|'
 
-"unary_expr" -> "unary_op" "primary_expr" | "primary_expr"
+[;] "mul_expr" -> "unary_expr" "mul_div_or_mod_op" "unary_expr"
+[*;] "mul_expr" -> "unary_expr"
 
-"unary_op" -> '+' | '-' | '!' | '~'
+[*;] "mul_div_or_mod_op" -> '*' | '/' | '%'
+
+[;] "unary_expr" -> "unary_op" "primary_expr"
+[*;] "unary_expr" -> "primary_expr"
+
+[*;] "unary_op" -> '+' | '-' | '!' | '~'
 
 # -------- primary expression --------
-"primary_expr" -> '(' "expr" ')' | "id" | "literal" | "call_expr"
+[;1] "primary_expr" -> '(' "expr" ')'
+[;] "primary_expr" -> "id" | "literal" | "call_expr"
 
 # -------- 函数调用 --------
-"call_expr" -> "id" '(' "call_expr_post"
-"call_expr_post" -> "args" ')' | ')'
-"args" -> "expr" ',' "args" | "expr"
+[;0,2] "call_expr" -> "id" '(' "call_expr_post"
+
+[*;0] "call_expr_post" -> "args" ')'
+[*;-] "call_expr_post" -> ')'
+
+[*;0,2] "args" -> "expr" ',' "args"
+[*;] "args" -> "expr"

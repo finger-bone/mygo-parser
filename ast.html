@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>解析树可视化</title>
+    <title>抽象语法树可视化</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
@@ -125,7 +125,7 @@
 
     <script>
         // 加载解析树数据
-        d3.json('parser_tree.json').then(data => {
+        d3.json('parser_tree_ast.json').then(data => {
             // 设置画布尺寸 - 增加高度和边距以适应复杂树结构
             const width = document.getElementById('tree-container').clientWidth;
             const height = 1500; // 增加高度以容纳更多节点
@@ -437,7 +437,7 @@
             document.getElementById('tree-container').innerHTML = 
                 '<div style="color: red; text-align: center; margin-top: 50px;">' +
                 '<h3>加载数据出错</h3>' +
-                '<p>请确保 parser_tree.json 文件存在且格式正确</p>' +
+                '<p>请确保 parser_tree_ast.json 文件存在且格式正确</p>' +
                 '<p>错误详情: ' + error.message + '</p>' +
                 '</div>';
         });

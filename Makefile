@@ -26,3 +26,4 @@ view:
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET)
+	rm ./*.json
