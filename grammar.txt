@@ -21,8 +21,8 @@
 # 产生式开头必须标记抽象语法树信息，语法为 [展开标记; 子树1, 子树2]
 # 如果标记 *，这个非终结符为中间非终结符，不承载语义信息，在这个节点作为子树插入其它节点时，会进行展平，否则什么都不做。如果没有展开标记，则不处理
 # 如果写为 [展开标记;]，则自动插入所有子树
-# 子树可以用直接写数字（即第 i 个终结符/非终结符），也可以用非终结符的名称
-# 产生式开头还要写语法制导翻译信息
+# 如果为 [展开标记;-]，则不插入任何内容
+# 子树直接写数字（即第 i 个终结符/非终结符）
 
 # ------------- 基础组件 -----------------
 
@@ -103,7 +103,7 @@
 [*;] "if_else_stmt_post_else" -> "block" | "if_else_stmt"
 
 # -------- 表达式 --------
-[*;] "expr" -> "or_expr"
+[;] "expr" -> "or_expr"
 
 [;] "or_expr" ->  "and_expr" '||' "and_expr"
 [*;] "or_expr" -> "and_expr"
@@ -132,8 +132,8 @@
 [*;] "unary_op" -> '+' | '-' | '!' | '~'
 
 # -------- primary expression --------
-[;1] "primary_expr" -> '(' "expr" ')'
-[;] "primary_expr" -> "id" | "literal" | "call_expr"
+[*;1] "primary_expr" -> '(' "expr" ')'
+[*;] "primary_expr" -> "id" | "literal" | "call_expr"
 
 # -------- 函数调用 --------
 [;0,2] "call_expr" -> "id" '(' "call_expr_post"
@@ -141,5 +141,6 @@
 [*;0] "call_expr_post" -> "args" ')'
 [*;-] "call_expr_post" -> ')'
 
-[*;0,2] "args" -> "expr" ',' "args"
-[*;] "args" -> "expr"
+[;] "args" -> "args_wrapper"
+[*;0,2] "args_wrapper" -> "expr" ',' "args_wrapper"
+[*;] "args_wrapper" -> "expr"

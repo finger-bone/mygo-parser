@@ -212,15 +212,7 @@ namespace slr {
         Action() : type(ActionType::ERROR), value(-1) {}
         Action(ActionType type, int value = -1) : type(type), value(value) {}
         
-        std::string to_string() const {
-            switch (type) {
-                case ActionType::SHIFT: return "s" + std::to_string(value);
-                case ActionType::REDUCE: return "r" + std::to_string(value);
-                case ActionType::ACCEPT: return "acc";
-                case ActionType::ERROR: return "err";
-                default: return "unknown";
-            }
-        }
+        std::string to_string() const;
     };
 
     // SLR1解析器类

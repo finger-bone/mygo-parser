@@ -28,7 +28,7 @@ bool is_letter(char c) {
 }
 
 bool is_digit(char c) {
-    return '0' <= c && '9' >= 'c';
+    return '0' <= c && c <= '9';
 }
 
 std::optional<Token> Tokenizer::next_token() {

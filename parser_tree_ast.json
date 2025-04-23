@@ -128,7 +128,7 @@
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "primary_expr"
+                  "value": "expr"
                 }
               ],
               "type": "non-terminal",
@@ -150,7 +150,7 @@
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "primary_expr"
+                  "value": "expr"
                 }
               ],
               "type": "non-terminal",
@@ -178,7 +178,7 @@
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "primary_expr"
+                  "value": "expr"
                 }
               ],
               "type": "non-terminal",
@@ -215,17 +215,11 @@
                           ],
                           "type": "non-terminal",
                           "value": "uint_literal"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "primary_expr"
-                    },
-                    {
-                      "type": "terminal",
-                      "value": "||"
-                    },
-                    {
-                      "children": [
+                        },
+                        {
+                          "type": "terminal",
+                          "value": "||"
+                        },
                         {
                           "children": [
                             {
@@ -241,17 +235,11 @@
                                       ],
                                       "type": "non-terminal",
                                       "value": "id"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "primary_expr"
-                                },
-                                {
-                                  "type": "terminal",
-                                  "value": "&&"
-                                },
-                                {
-                                  "children": [
+                                    },
+                                    {
+                                      "type": "terminal",
+                                      "value": "&&"
+                                    },
                                     {
                                       "children": [
                                         {
@@ -264,22 +252,16 @@
                                     }
                                   ],
                                   "type": "non-terminal",
-                                  "value": "primary_expr"
+                                  "value": "and_expr"
                                 }
                               ],
                               "type": "non-terminal",
-                              "value": "and_expr"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "primary_expr"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "!="
-                        },
-                        {
-                          "children": [
+                              "value": "expr"
+                            },
+                            {
+                              "type": "terminal",
+                              "value": "!="
+                            },
                             {
                               "children": [
                                 {
@@ -292,15 +274,15 @@
                             }
                           ],
                           "type": "non-terminal",
-                          "value": "primary_expr"
+                          "value": "comp_expr"
                         }
                       ],
                       "type": "non-terminal",
-                      "value": "comp_expr"
+                      "value": "or_expr"
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "or_expr"
+                  "value": "expr"
                 }
               ],
               "type": "non-terminal",
@@ -368,7 +350,7 @@
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "primary_expr"
+                  "value": "expr"
                 }
               ],
               "type": "non-terminal",
@@ -442,7 +424,7 @@
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "primary_expr"
+                  "value": "expr"
                 }
               ],
               "type": "non-terminal",
@@ -477,32 +459,38 @@
                             {
                               "children": [
                                 {
-                                  "type": "terminal",
-                                  "value": "a"
+                                  "children": [
+                                    {
+                                      "type": "terminal",
+                                      "value": "a"
+                                    }
+                                  ],
+                                  "type": "non-terminal",
+                                  "value": "id"
                                 }
                               ],
                               "type": "non-terminal",
-                              "value": "id"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "primary_expr"
-                        },
-                        {
-                          "children": [
+                              "value": "expr"
+                            },
                             {
                               "children": [
                                 {
-                                  "type": "terminal",
-                                  "value": "b"
+                                  "children": [
+                                    {
+                                      "type": "terminal",
+                                      "value": "b"
+                                    }
+                                  ],
+                                  "type": "non-terminal",
+                                  "value": "id"
                                 }
                               ],
                               "type": "non-terminal",
-                              "value": "id"
+                              "value": "expr"
                             }
                           ],
                           "type": "non-terminal",
-                          "value": "primary_expr"
+                          "value": "args"
                         }
                       ],
                       "type": "non-terminal",
@@ -510,7 +498,7 @@
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "primary_expr"
+                  "value": "expr"
                 }
               ],
               "type": "non-terminal",
@@ -531,17 +519,11 @@
                           ],
                           "type": "non-terminal",
                           "value": "id"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "primary_expr"
-                    },
-                    {
-                      "type": "terminal",
-                      "value": "!="
-                    },
-                    {
-                      "children": [
+                        },
+                        {
+                          "type": "terminal",
+                          "value": "!="
+                        },
                         {
                           "children": [
                             {
@@ -554,11 +536,11 @@
                         }
                       ],
                       "type": "non-terminal",
-                      "value": "primary_expr"
+                      "value": "comp_expr"
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "comp_expr"
+                  "value": "expr"
                 },
                 {
                   "children": [
@@ -583,17 +565,11 @@
                                       ],
                                       "type": "non-terminal",
                                       "value": "id"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "primary_expr"
-                                },
-                                {
-                                  "type": "terminal",
-                                  "value": "=="
-                                },
-                                {
-                                  "children": [
+                                    },
+                                    {
+                                      "type": "terminal",
+                                      "value": "=="
+                                    },
                                     {
                                       "children": [
                                         {
@@ -606,18 +582,12 @@
                                     }
                                   ],
                                   "type": "non-terminal",
-                                  "value": "primary_expr"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "comp_expr"
-                            },
-                            {
-                              "type": "terminal",
-                              "value": "||"
-                            },
-                            {
-                              "children": [
+                                  "value": "comp_expr"
+                                },
+                                {
+                                  "type": "terminal",
+                                  "value": "||"
+                                },
                                 {
                                   "children": [
                                     {
@@ -630,11 +600,11 @@
                                 }
                               ],
                               "type": "non-terminal",
-                              "value": "primary_expr"
+                              "value": "or_expr"
                             }
                           ],
                           "type": "non-terminal",
-                          "value": "or_expr"
+                          "value": "expr"
                         },
                         {
                           "children": [
@@ -684,7 +654,7 @@
                                     }
                                   ],
                                   "type": "non-terminal",
-                                  "value": "primary_expr"
+                                  "value": "expr"
                                 }
                               ],
                               "type": "non-terminal",
@@ -713,17 +683,11 @@
                                   ],
                                   "type": "non-terminal",
                                   "value": "id"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "primary_expr"
-                            },
-                            {
-                              "type": "terminal",
-                              "value": "=="
-                            },
-                            {
-                              "children": [
+                                },
+                                {
+                                  "type": "terminal",
+                                  "value": "=="
+                                },
                                 {
                                   "children": [
                                     {
@@ -736,11 +700,11 @@
                                 }
                               ],
                               "type": "non-terminal",
-                              "value": "primary_expr"
+                              "value": "comp_expr"
                             }
                           ],
                           "type": "non-terminal",
-                          "value": "comp_expr"
+                          "value": "expr"
                         },
                         {
                           "children": [
@@ -771,17 +735,11 @@
                                       ],
                                       "type": "non-terminal",
                                       "value": "id"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "primary_expr"
-                                },
-                                {
-                                  "type": "terminal",
-                                  "value": "=="
-                                },
-                                {
-                                  "children": [
+                                    },
+                                    {
+                                      "type": "terminal",
+                                      "value": "=="
+                                    },
                                     {
                                       "children": [
                                         {
@@ -794,11 +752,11 @@
                                     }
                                   ],
                                   "type": "non-terminal",
-                                  "value": "primary_expr"
+                                  "value": "comp_expr"
                                 }
                               ],
                               "type": "non-terminal",
-                              "value": "comp_expr"
+                              "value": "expr"
                             },
                             {
                               "children": [
@@ -876,7 +834,7 @@
                             }
                           ],
                           "type": "non-terminal",
-                          "value": "primary_expr"
+                          "value": "expr"
                         }
                       ],
                       "type": "non-terminal",
@@ -908,7 +866,7 @@
                             }
                           ],
                           "type": "non-terminal",
-                          "value": "primary_expr"
+                          "value": "expr"
                         }
                       ],
                       "type": "non-terminal",
@@ -931,17 +889,11 @@
                           ],
                           "type": "non-terminal",
                           "value": "id"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "primary_expr"
-                    },
-                    {
-                      "type": "terminal",
-                      "value": "<"
-                    },
-                    {
-                      "children": [
+                        },
+                        {
+                          "type": "terminal",
+                          "value": "<"
+                        },
                         {
                           "children": [
                             {
@@ -964,11 +916,11 @@
                         }
                       ],
                       "type": "non-terminal",
-                      "value": "primary_expr"
+                      "value": "comp_expr"
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "comp_expr"
+                  "value": "expr"
                 },
                 {
                   "children": [
@@ -995,17 +947,11 @@
                               ],
                               "type": "non-terminal",
                               "value": "id"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "primary_expr"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "+"
-                        },
-                        {
-                          "children": [
+                            },
+                            {
+                              "type": "terminal",
+                              "value": "+"
+                            },
                             {
                               "children": [
                                 {
@@ -1024,11 +970,11 @@
                             }
                           ],
                           "type": "non-terminal",
-                          "value": "primary_expr"
+                          "value": "add_expr"
                         }
                       ],
                       "type": "non-terminal",
-                      "value": "add_expr"
+                      "value": "expr"
                     }
                   ],
                   "type": "non-terminal",
@@ -1084,7 +1030,7 @@
                     }
                   ],
                   "type": "non-terminal",
-                  "value": "primary_expr"
+                  "value": "expr"
                 }
               ],
               "type": "non-terminal",

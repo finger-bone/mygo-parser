@@ -12,6 +12,9 @@
 
 namespace grammar {
 
+// 辅助函数：检查字符串是否以特定字符开始并以特定字符结束
+bool match_ends(const std::string& src, const char start, const char end);
+
 struct Terminal {
     std::string value;
 

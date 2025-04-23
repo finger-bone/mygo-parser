@@ -1495,84 +1495,10 @@
                                                                                                                                                 {
                                                                                                                                                   "children": [
                                                                                                                                                     {
-                                                                                                                                                      "type": "terminal",
-                                                                                                                                                      "value": "a"
-                                                                                                                                                    }
-                                                                                                                                                  ],
-                                                                                                                                                  "type": "non-terminal",
-                                                                                                                                                  "value": "letter"
-                                                                                                                                                }
-                                                                                                                                              ],
-                                                                                                                                              "type": "non-terminal",
-                                                                                                                                              "value": "id_wrapper"
-                                                                                                                                            }
-                                                                                                                                          ],
-                                                                                                                                          "type": "non-terminal",
-                                                                                                                                          "value": "id"
-                                                                                                                                        }
-                                                                                                                                      ],
-                                                                                                                                      "type": "non-terminal",
-                                                                                                                                      "value": "primary_expr"
-                                                                                                                                    }
-                                                                                                                                  ],
-                                                                                                                                  "type": "non-terminal",
-                                                                                                                                  "value": "unary_expr"
-                                                                                                                                }
-                                                                                                                              ],
-                                                                                                                              "type": "non-terminal",
-                                                                                                                              "value": "mul_expr"
-                                                                                                                            }
-                                                                                                                          ],
-                                                                                                                          "type": "non-terminal",
-                                                                                                                          "value": "add_expr"
-                                                                                                                        }
-                                                                                                                      ],
-                                                                                                                      "type": "non-terminal",
-                                                                                                                      "value": "comp_expr"
-                                                                                                                    }
-                                                                                                                  ],
-                                                                                                                  "type": "non-terminal",
-                                                                                                                  "value": "and_expr"
-                                                                                                                }
-                                                                                                              ],
-                                                                                                              "type": "non-terminal",
-                                                                                                              "value": "or_expr"
-                                                                                                            }
-                                                                                                          ],
-                                                                                                          "type": "non-terminal",
-                                                                                                          "value": "expr"
-                                                                                                        },
-                                                                                                        {
-                                                                                                          "type": "terminal",
-                                                                                                          "value": ","
-                                                                                                        },
-                                                                                                        {
-                                                                                                          "children": [
-                                                                                                            {
-                                                                                                              "children": [
-                                                                                                                {
-                                                                                                                  "children": [
-                                                                                                                    {
-                                                                                                                      "children": [
-                                                                                                                        {
-                                                                                                                          "children": [
-                                                                                                                            {
-                                                                                                                              "children": [
-                                                                                                                                {
-                                                                                                                                  "children": [
-                                                                                                                                    {
-                                                                                                                                      "children": [
-                                                                                                                                        {
-                                                                                                                                          "children": [
-                                                                                                                                            {
-                                                                                                                                              "children": [
-                                                                                                                                                {
-                                                                                                                                                  "children": [
-                                                                                                                                                    {
                                                                                                                                                       "children": [
                                                                                                                                                         {
                                                                                                                                                           "type": "terminal",
-                                                                                                                                                          "value": "b"
+                                                                                                                                                          "value": "a"
                                                                                                                                                         }
                                                                                                                                                       ],
                                                                                                                                                       "type": "non-terminal",
@@ -1617,10 +1543,90 @@
                                                                                                               ],
                                                                                                               "type": "non-terminal",
                                                                                                               "value": "expr"
+                                                                                                            },
+                                                                                                            {
+                                                                                                              "type": "terminal",
+                                                                                                              "value": ","
+                                                                                                            },
+                                                                                                            {
+                                                                                                              "children": [
+                                                                                                                {
+                                                                                                                  "children": [
+                                                                                                                    {
+                                                                                                                      "children": [
+                                                                                                                        {
+                                                                                                                          "children": [
+                                                                                                                            {
+                                                                                                                              "children": [
+                                                                                                                                {
+                                                                                                                                  "children": [
+                                                                                                                                    {
+                                                                                                                                      "children": [
+                                                                                                                                        {
+                                                                                                                                          "children": [
+                                                                                                                                            {
+                                                                                                                                              "children": [
+                                                                                                                                                {
+                                                                                                                                                  "children": [
+                                                                                                                                                    {
+                                                                                                                                                      "children": [
+                                                                                                                                                        {
+                                                                                                                                                          "children": [
+                                                                                                                                                            {
+                                                                                                                                                              "type": "terminal",
+                                                                                                                                                              "value": "b"
+                                                                                                                                                            }
+                                                                                                                                                          ],
+                                                                                                                                                          "type": "non-terminal",
+                                                                                                                                                          "value": "letter"
+                                                                                                                                                        }
+                                                                                                                                                      ],
+                                                                                                                                                      "type": "non-terminal",
+                                                                                                                                                      "value": "id_wrapper"
+                                                                                                                                                    }
+                                                                                                                                                  ],
+                                                                                                                                                  "type": "non-terminal",
+                                                                                                                                                  "value": "id"
+                                                                                                                                                }
+                                                                                                                                              ],
+                                                                                                                                              "type": "non-terminal",
+                                                                                                                                              "value": "primary_expr"
+                                                                                                                                            }
+                                                                                                                                          ],
+                                                                                                                                          "type": "non-terminal",
+                                                                                                                                          "value": "unary_expr"
+                                                                                                                                        }
+                                                                                                                                      ],
+                                                                                                                                      "type": "non-terminal",
+                                                                                                                                      "value": "mul_expr"
+                                                                                                                                    }
+                                                                                                                                  ],
+                                                                                                                                  "type": "non-terminal",
+                                                                                                                                  "value": "add_expr"
+                                                                                                                                }
+                                                                                                                              ],
+                                                                                                                              "type": "non-terminal",
+                                                                                                                              "value": "comp_expr"
+                                                                                                                            }
+                                                                                                                          ],
+                                                                                                                          "type": "non-terminal",
+                                                                                                                          "value": "and_expr"
+                                                                                                                        }
+                                                                                                                      ],
+                                                                                                                      "type": "non-terminal",
+                                                                                                                      "value": "or_expr"
+                                                                                                                    }
+                                                                                                                  ],
+                                                                                                                  "type": "non-terminal",
+                                                                                                                  "value": "expr"
+                                                                                                                }
+                                                                                                              ],
+                                                                                                              "type": "non-terminal",
+                                                                                                              "value": "args_wrapper"
                                                                                                             }
                                                                                                           ],
                                                                                                           "type": "non-terminal",
-                                                                                                          "value": "args"
+                                                                                                          "value": "args_wrapper"
                                                                                                         }
                                                                                                       ],
                                                                                                       "type": "non-terminal",

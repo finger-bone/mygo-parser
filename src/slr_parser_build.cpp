@@ -9,40 +9,6 @@
 #include <iomanip>
 
 namespace slr {
-    std::string SLRSymbol::to_string() const
-    {
-        if (this->type == SLRSymbolType::SPECIAL_TERMINAL || this->type == SLRSymbolType::SPECIAL_NON_TERMINAL)
-        {
-            return "SPECIAL(" + this->value + ")";
-        }
-        else if (this->type == SLRSymbolType::TERMINAL)
-        {
-            return "TERMINAL(" + (this->value == "\n" ? "\\n" : this->value) + ")";
-        }
-        else if (this->type == SLRSymbolType::NON_TERMINAL)
-        {
-            return "NON_TERMINAL(" + this->value + ")";
-        }
-        else
-        {
-            throw std::runtime_error("Invalid symbol type");
-        }
-    }
-
-    std::string LR0Item::to_string() const
-    {
-        std::stringstream ss;
-        ss << non_terminal << " -> ";
-        for (size_t i = 0; i < production.size(); ++i)
-        {
-            if (i == dot_position)
-                ss << ".";
-            ss << production[i].to_string() << " ";
-        }
-        if (dot_position == production.size())
-            ss << ".";
-        return ss.str();
-    }
 
     std::string CSTNode::to_json() const
     {
@@ -532,24 +498,4 @@ namespace slr {
         }
     }
 
-    // 构建解析表，指定开始符号
-    bool SLR1Parser::build_parse_table(const std::string &start_sym)
-    {
-
-        try
-        {
-            start_symbol = start_sym;
-
-            // 增广文法
-            augment_grammar();
-
-            // 构建分析表
-            build_tables();
-            return true;
-        }
-        catch (const std::exception &e)
-        {
-            return false;
-        }
-    }
 }
