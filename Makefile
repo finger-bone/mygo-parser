@@ -21,6 +21,9 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
+format:
+	find include src \( -name "*.hpp" -o -name "*.cpp" \) ! -path "include/nlohmann/*" -exec clang-format -i {} \;
+
 view:
 	bunx serve .
 
