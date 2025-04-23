@@ -1,12 +1,12 @@
-# mygo
+# sgo
 
 语法是无空产生式的 SLR(1) 文法。语法文件使用确定性的递归下降算法解析。
 
 ## 可视化
 
-[AST树](https://finger-bone.github.io/mygo-parser/ast)
-[解析树](https://finger-bone.github.io/mygo-parser/cst)
-[SLR1解析器信息](https://finger-bone.github.io/mygo-parser/parser)
+[AST树](https://finger-bone.github.io/sgo-lang/ast)
+[解析树](https://finger-bone.github.io/sgo-lang/cst)
+[SLR1解析器信息](https://finger-bone.github.io/sgo-lang/parser)
 
 ## Grammar File Format
 
