@@ -641,6 +641,7 @@ function translate_stmt(stmt_node: ASTNode): Array<string> {
         const store_ptr = code_prop.o.v;
         const translated_expr = translate_expr(stmt_node.children[1]!);
         return [
+            ...translate_expr(stmt_node.children[0]!),
             ...translated_expr,
             `local.get $${store_ptr}`,
             `local.get $${store_value}`,
