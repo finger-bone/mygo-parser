@@ -151,6 +151,11 @@ $().d.functions = $gather($(), "func_decl");
 
 [*;] "func_decl_list" -> "func_decl_list" "func_decl" | "func_decl"
 
+[;1,2] "func_decl" -> 'decl' "id" "type" '{}'`
+$decl_func($(0).d.name, $(1).d.type_name);
+$().d.skip = true;
+`
+
 [;1,3] "func_decl" -> 'func' "id" '(' "func_decl_post" `
 $decl_func($(0).d.name, $(1).d.return_type);
 $().d.func_decl = {
@@ -313,7 +318,7 @@ $().d.f_type = "nest";
 # -------- 表达式 --------
 [*;] "expr" -> "or_expr"
 
-[;] "or_expr" ->  "and_expr" '||' "and_expr" `
+[;] "or_expr" ->  "and_expr" '||' "or_expr" `
 const place = $mktmp("bool");
 $().d.code = {
     "op": "||",
@@ -330,7 +335,7 @@ $cltmp();
 `
 [*;] "or_expr" -> "and_expr"
 
-[;] "and_expr" -> "comp_expr" '&&' "comp_expr" `
+[;] "and_expr" -> "comp_expr" '&&' "and_expr" `
 const place = $mktmp("bool");
 $().d.code = {
     "op": "&&",
@@ -347,7 +352,7 @@ $cltmp();
 `
 [*;] "and_expr" -> "comp_expr"
 
-[;] "comp_expr" -> "add_expr" "comp_op" "add_expr" `
+[;] "comp_expr" -> "add_expr" "comp_op" "comp_expr" `
 const place = $mktmp("bool");
 $().d.code = {
     "op": $(1).d.op_name,
@@ -368,7 +373,7 @@ $cltmp();
 $().d.op_name = $gather_terminal($());
 `
 
-[;] "add_expr" -> "mul_expr" "plus_or_minus_op" "mul_expr" `
+[;] "add_expr" -> "mul_expr" "plus_or_minus_op" "add_expr" `
 const place = $mktmp($(0).d.val.type_name);
 $().d.code = {
     "op": $(1).d.op_name,
@@ -383,7 +388,7 @@ $().d.val = {
 $cltmp();
 $cltmp();
 `
-[;] "add_expr" -> "mul_expr" "bit_and_or_op" "mul_expr" `
+[;] "add_expr" -> "mul_expr" "bit_and_or_op" "add_expr" `
 const place = $mktmp($(0).d.val.type_name);
 $().d.code = {
     "op": $(1).d.op_name,
@@ -408,7 +413,7 @@ $().d.op_name = $gather_terminal($());
 $().d.op_name = $gather_terminal($());
 `
 
-[;] "mul_expr" -> "unary_expr" "mul_div_or_mod_op" "unary_expr" `
+[;] "mul_expr" -> "unary_expr" "mul_div_or_mod_op" "mul_expr" `
 const place = $mktmp($(0).d.val.type_name);
 $().d.code = {
     "op": $(1).d.op_name,

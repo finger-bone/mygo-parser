@@ -646,8 +646,11 @@ function translate_func(func_node: ASTNode): string {
 }
 
 function translate(root: ASTNode): string {
-    const translated_func = root.children.map(func_decl_node => {
-        return translate_func(func_decl_node);
+    const translated_func = root.children.flatMap(func_decl_node => {
+        if(func_decl_node.d.skip === true) {
+            return []
+        }
+        return [translate_func(func_decl_node)];
     });
     // export all functions
     const export_func = Object.keys(function_table).map(e => {

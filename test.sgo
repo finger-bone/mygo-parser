@@ -4,15 +4,25 @@ func aaaa(a int) int {
     return b;
 }
 
+decl fib int {}
+
+func fib(n int) int {
+    var result int;
+    if(n < 2) {
+        result = n;
+    } else {
+        result = fib(n - 1) + fib(n - 2);
+    };
+    return result;
+}
+
 func main() void {
     echo aaaa(2);
     a := 1;
-    while(a < 10) {
+    while(a < 40) {
         echo a;
+        echo fib(a);
         a = a + 1;
-        if(a == 5) {
-            break;
-        };
     };
     return nil;
 }
