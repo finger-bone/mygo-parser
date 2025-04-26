@@ -2,6 +2,16 @@
 
 语法是无空产生式的 SLR(1) 文法。语法文件使用确定性的递归下降算法解析。
 
+使用语法制导翻译（允许 L 属性，但只使用了 S 属性），语义动作使用 js 语言。输出为 wat 文件。
+
+- make run: 运行输出的 wasm
+- make build: 编译 tokenizer 与 parser
+- make parse: 输出语法树
+- make translate: 编译
+- make assemble: wat 汇编为 wasm
+- make run: 运行 wasm 中的 main 函数
+- make copmile: 完成从 build 到 assemble 的所有过程
+
 ## 可视化
 
 [AST树](https://finger-bone.github.io/sgo-lang/ast)
