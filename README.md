@@ -20,7 +20,7 @@
 
 ## Grammar File Format
 
-\[AST Tree Information\] production rule `sematic actions`
+\[AST Tree Information\] production rule \`sematic actions\`
 
 For AST Tree Information, \[DO_FLATTEN_LABLE;TREE_NODES\]
 
