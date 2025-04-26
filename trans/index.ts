@@ -177,9 +177,11 @@ type SpecialOps = "get" | "get_literal" | "put";
 
 type ControlOps = "break" | "continue" | "while" | "if"
 
+type MemOps = "load" | "store" | "malloc" | "free";
+
 type ArithOps = "=" | "+" | "-" | "*" | "/" | "==" | "!=" | ">" | "<" | ">=" | "<=" | "&&" | "||" | "|" | "&" | "!" | "~";
 
-type Ops = "pass" | "call" | "return" | "expr" | "echo" | "unreachable" | ArithOps | SpecialOps | ControlOps;
+type Ops = "pass" | "call" | "return" | "expr" | "echo" | "unreachable" | ArithOps | SpecialOps | ControlOps | MemOps;
 
 
 type CodeProp = {
@@ -306,6 +308,16 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
             `local.set $${output}`,
         ]
     } else if(op === "*") {
+        if(code.rhs === undefined) {
+            const target_stack_var = code.o;
+            return [
+                ...translate_expr(expr_node.children[1]!),
+                `local.get $${expr_node.children[lhs]!.d.val.v}`,
+                `call $rt_load`,
+                `local.set $${target_stack_var}`,
+            ]
+        }
+
         return [
             ...translate_expr(expr_node.children[lhs]!),
             ...translate_expr(expr_node.children[rhs]!),
@@ -423,6 +435,14 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
             `i32.const 0xFFFFFFFF`,
             `${lhs_type}.xor`,
             `local.set $${output}`,
+        ]
+    } else if(op === "=") {
+        const source = expr_node.children[lhs]!.d.val.v;
+        const target = expr_node.d.code.o;
+        return [
+            ...translate_expr(expr_node.children[lhs]!),
+            `local.get $${source}`,
+            `local.set $${target}`,
         ]
     }
 
@@ -580,7 +600,7 @@ function translate_stmt(stmt_node: ASTNode): Array<string> {
         return [
             ...translate_expr(stmt_node.children[0]!),
             `local.get $${val_name}`,
-            `call $echo_${val_type}`
+            `call $rt_echo_${val_type}`
         ]
     } else if(code_prop.op === "if") {
         return translate_if(stmt_node);
@@ -597,6 +617,34 @@ function translate_stmt(stmt_node: ASTNode): Array<string> {
     } else if(code_prop.op === "unreachable") {
         return [
             `unreachable`,
+        ]
+    } else if(code_prop.op === "malloc") {
+        const ptr_target = code_prop.o;
+        const ptr_value = code_prop.val.v;
+        const translated_expr = translate_expr(stmt_node.children[1]!);
+        return [
+           ...translated_expr,
+            `local.get $${ptr_value}`,
+            `call $rt_malloc`,
+            `local.set $${ptr_target}`,
+        ]
+    } else if(code_prop.op === "free") {
+        const ptr_value = code_prop.val.v;
+        const translated_expr = translate_expr(stmt_node.children[0]!);
+        return [
+          ...translated_expr,
+            `local.get $${ptr_value}`,
+            `call $rt_free`,
+        ]
+    } else if(code_prop.op === "store") {
+        const store_value = code_prop.val.v;
+        const store_ptr = code_prop.o.v;
+        const translated_expr = translate_expr(stmt_node.children[1]!);
+        return [
+            ...translated_expr,
+            `local.get $${store_ptr}`,
+            `local.get $${store_value}`,
+            `call $rt_store`,
         ]
     }
     throw new Error(`unknown op: ${code_prop.op}`);
@@ -663,7 +711,16 @@ function translate(root: ASTNode): string {
     const export_func = Object.keys(function_table).map(e => {
         return `(export "${e}" (func $${e}))`;
     })
-    const import_func = ["i32", "i64", "f32", "f64"].map(e => `(import "runtime" "echo" (func $echo_${e} (param ${e})))`)
+    const import_func = ["i32", "i64", "f32", "f64"].map(e => `(import "runtime" "echo" (func $rt_echo_${e} (param ${e})))`)
+
+    import_func.push(
+        ...[
+            `(import "runtime" "malloc" (func $rt_malloc (param i32) (result i32)))`,
+            `(import "runtime" "free" (func $rt_free (param i32)))`,
+            `(import "runtime" "store" (func $rt_store (param i32) (param i32)))`,
+            `(import "runtime" "load" (func $rt_load (param i32) (result i32)))`,
+        ]
+    )
 
     return `(module\n${indent(import_func).join("\n")}\n${indent(translated_func).join('\n')}\n${indent(export_func).join('\n')}\n)`;
 }

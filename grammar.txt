@@ -208,10 +208,28 @@ $().d.one_param = {
 [*;0,1] "stmt_list" -> "stmt_list" "stmt" ';'
 [*;0] "stmt_list" -> "stmt" ';'
 
-[*;] "stmt" -> "single_stmt"
+[*;] "stmt" -> "single_stmt" | "single_stmt" ',' "comma_stmt"
+
+[*;] "comma_stmt" -> "single_stmt" | "single_stmt" ',' "comma_stmt"
 
 [*;] "single_stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | "expr_stmt" | "decl_and_assign_stmt" | "unreachable_stmt"
-[*;] "single_stmt" -> "pass_stmt" | "break_stmt" | "continue_stmt"
+[*;] "single_stmt" -> "pass_stmt" | "break_stmt" | "continue_stmt" | "malloc_stmt" | "free_stmt" | "store_stmt"
+
+[;0,2] "malloc_stmt" -> "id" 'malloc' "expr" `
+$decl_var($(0).d.name, "int")
+$().d.code = {
+    "op": "malloc",
+    "o": $(0).d.name,
+    "val": $(1).d.val,
+};
+`
+
+[;1] "free_stmt" -> 'free' "expr" `
+$().d.code = {
+    "op": "free",
+    "val": $(0).d.val,
+}
+`
 
 [;] "unreachable_stmt" -> 'unreachable' `
 $().d.code = {
@@ -247,6 +265,7 @@ $().d.code = {
     "op": "pass",
 };
 `
+
 [;0,2] "assign_stmt" -> "id" '=' "expr" `
 $().d.code = {
     "op": "=",
@@ -254,6 +273,14 @@ $().d.code = {
     "o": $(0).d.name,
 };
 $cltmp();
+`
+
+[;0,2] "store_stmt" -> "expr" '<-' "expr" `
+$().d.code = {
+    "op": "store",
+    "val": $(1).d.val,
+    "o": $(0).d.val,
+}
 `
 
 [;0,2] "decl_and_assign_stmt" -> "id" ':=' "expr" `
@@ -435,7 +462,7 @@ $cltmp();
 $cltmp();
 `
 [*;] "mul_expr" -> "unary_expr"
-z
+
 [;] "mul_div_or_mod_op" -> '*' | '/' | '%' `
 $().d.op_name = $gather_terminal($());
 `
@@ -455,7 +482,7 @@ $cltmp();
 `
 [*;] "unary_expr" -> "primary_expr"
 
-[;] "unary_op" -> '+' | '-' | '!' | '~' `
+[;] "unary_op" -> '+' | '-' | '!' | '~' | '*' `
 $().d.op_name = $gather_terminal($());
 `
 

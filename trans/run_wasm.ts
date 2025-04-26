@@ -1,6 +1,6 @@
 // run the main function in output.wasm
 import fs from "node:fs"
-import {sys_echo} from "./run_time";
+import {memory, echo, malloc, free, store, load} from "./run_time";
 
 async function runWasm() {
     try {
@@ -11,7 +11,12 @@ async function runWasm() {
         // 实例化模块
         const imports = {
             "runtime": {
-                "echo": sys_echo
+                "echo": echo,
+                "memory": memory,
+                "malloc": malloc,
+                "free": free,
+                "store": store,
+                "load": load,
             }
         };
         const instance = await WebAssembly.instantiate(wasmModule, imports);

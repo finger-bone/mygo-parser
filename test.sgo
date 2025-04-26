@@ -6,11 +6,17 @@ func aaaa(a int) int {
 
 decl fib int {}
 
-func fib(n int) int {
+func fib(n int, cache int) int {
+    if(*(cache + (n * 4)) != 0) {
+        return *(cache + (n * 4));
+    };
     if(n < 2) {
+        cache + (n * 4) <- n;
         return n;
     } else {
-        return fib(n - 1) + fib(n - 2);
+        result := fib(n - 1, cache) + fib(n - 2, cache);
+        cache + (n * 4) <- result;
+        return result;
     };
     unreachable;
 }
@@ -18,10 +24,12 @@ func fib(n int) int {
 func main() void {
     echo aaaa(2);
     a := 1;
-    while(a < 40) {
+    cache malloc 1024 * 64;
+    while(a < 30) {
         echo a;
-        echo fib(a);
+        echo fib(a, cache);
         a = a + 1;
     };
+    free cache;
     return nil;
 }
