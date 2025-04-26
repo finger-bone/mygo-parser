@@ -62,8 +62,11 @@ struct GrammarRule {
   NonTerminal left;
   ProductionList right;
   ASTRule ast_rule;
-  GrammarRule(NonTerminal left, ProductionList right, ASTRule ast_rule)
-      : left(left), right(right), ast_rule(ast_rule) {}
+  std::string sematic_actions;
+  GrammarRule(NonTerminal left, ProductionList right, ASTRule ast_rule,
+              std::string sematic_actions)
+      : left(left), right(right), ast_rule(ast_rule),
+        sematic_actions(sematic_actions) {}
   static std::optional<GrammarRule> parse(const std::string &str);
   std::string to_string() const;
 };

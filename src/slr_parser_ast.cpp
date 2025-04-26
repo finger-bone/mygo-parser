@@ -68,6 +68,11 @@ std::string ASTNode::to_json() const {
                   ? "terminal"
                   : "non-terminal";
   j["value"] = symbol.value;
+  // 要带上语义信息
+  j["sematic"] = "";
+  if (production.has_value()) {
+    j["sematic"] = production.value().sematic_actions;
+  }
 
   // 返回格式化的JSON字符串
   return j.dump(2); // 缩进2个空格，使输出更易读

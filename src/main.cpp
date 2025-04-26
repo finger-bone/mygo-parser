@@ -21,7 +21,7 @@ int main() {
   auto terminals = g.extract_terminals();
 
   // 读取test.mygo文件内容
-  const std::string input_file = "test.mygo";
+  const std::string input_file = "test.sgo";
   std::ifstream file(input_file);
   if (!file.is_open()) {
     std::cerr << "Failed to open input file: " << input_file << std::endl;

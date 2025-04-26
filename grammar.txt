@@ -18,11 +18,12 @@
 # <hash> 代表 #
 # 产生式只能有 "" '' | <>，其它所有简写必须用额外变量表示
 # 产生式禁止换行
-# 产生式开头必须标记抽象语法树信息，语法为 [展开标记; 子树1, 子树2]
+# 产生式开头必须标记抽象语法树信息与语义信息，语法为 [展开标记; 子树1, 子树2]
 # 如果标记 *，这个非终结符为中间非终结符，不承载语义信息，在这个节点作为子树插入其它节点时，会进行展平，否则什么都不做。如果没有展开标记，则不处理
 # 如果写为 [展开标记;]，则自动插入所有子树
 # 如果为 [展开标记;-]，则不插入任何内容
 # 子树直接写数字（即第 i 个终结符/非终结符）
+# 语义信息
 
 # ------------- 基础组件 -----------------
 
@@ -31,116 +32,487 @@
 
 [*;] "digit" -> '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 
-[*;] "string_char" -> "letter" | "digit" | "escaped" | ',' | '.' | ';' | ' ' | '(' | ')' | '+' | '-' | '!' | '~' | '#' | '{' | '}' | '='
+[*;] "char_char" -> "letter" | "digit" | "escaped" | ',' | '.' | ';' | ' ' | '(' | ')' | '+' | '-' | '!' | '~' | '#' | '{' | '}' | '='
 
 [*;] "escaped" -> '\\' | '\"' | '\n' | '\t' | '\a'
 
-[;] "uint_literal" -> "digits"
+[;] "uint_literal" -> "digits" `
+const place = $mktmp("int");
+$().d.code = {
+    "op": "put",
+    "lhs": $str_to_uint($(0).d.literal),
+    "o": place,
+}
+$().d.val = {
+    "v": place,
+    "type_name": "int",
+};
+`
 
-[;] "digits" -> "digits_wrapper"
+[;] "digits" -> "digits_wrapper" `
+$().d.literal = $gather_terminal($())
+`
+
 [*;] "digits_wrapper" -> "digit" "digits_wrapper"
 [*;] "digits_wrapper" -> "digit"
 
-[;0,2] "float_literal" -> "digits" '.' "digits"
+[;0,2] "float_literal" -> "digits" '.' "digits" `
+const place = $mktmp("float");
+$().d.code = {
+    "op": "put",
+    "lhs": $str_to_float($(0).d.literal+"."+$(1).d.literal),
+    "o": place,
+}
+$().d.val = {
+    "v": place,
+    "type_name": "float",
+};
+`
 
-[;] "bool_literal" -> 'true' | 'false'
+[;] "bool_literal" -> 'true' `
+const place = $mktmp("bool");
+$().d.code = {
+    "op": "put",
+    "lhs": true,
+    "o": place,
+}
+$().d.val = {
+    "v": place,
+    "type_name": "bool",
+};
+`
+[;] "bool_literal" -> 'false' `
+const place = $mktmp("bool");
+$().d.code = {
+    "op": "put",
+    "lhs": false,
+    "o": place,
+}
+$().d.val = {
+    "v": place,
+    "type_name": "bool",
+};
+`
 
-[;1] "string_literal" -> <quot> "string_literal_body" <quot>
+[;1] "char_literal" -> <squot> "char_literal_body" <squot> `
+const place = $mktmp("char");
+$().d.code = {
+    "op": "put",
+    "lhs": $gather_terminal($()),
+    "o": place,
+}
+$().d.val = {
+    "v": place,
+    "type_name": "char",
+};
+`
 
-[*;] "string_literal_body" -> "string_char" "string_literal_body" | "string_char"
+[*;] "char_literal_body" -> "char_char"
 
-[;] "void_literal" -> 'nil'
+[;] "void_literal" -> 'nil' `
+const place = $mktmp("void");
+$().d.code = {
+    "op": "put",
+    "lhs": null,
+    "o": place,
+}
+$().d.val = {
+    "v": place,
+    "type_name": "void",
+};
+`
 
-[*;] "literal" -> "uint_literal" | "float_literal" | "bool_literal" | "void_literal" | "string_literal"
+[*;] "literal" -> "uint_literal" | "float_literal" | "bool_literal" | "void_literal" | "char_literal"
 
-[;] "id" -> "id_wrapper"
+[;] "id" -> "id_wrapper" `
+$().d.name = "c_" + $gather_terminal($());
+`
 [*;] "id_wrapper" -> '_' | "letter" | "id_wrapper" '_' | "id_wrapper" "digit" | "id_wrapper" "letter"
 
-[;] "type" -> 'int' | 'float' | 'void' | 'string'
+[;] "type" -> 'int' `
+$().d.type_name = "int"
+`
+[;] "type" -> 'char' `
+$().d.type_name = "char"
+`
+[;] "type" -> 'void' `
+$().d.type_name = 'void'
+`
+[;] "type" -> 'float' `
+$().d.type_name = 'float'
+`
 
 # ------------- 函数结构 -----------------
+# (node, name) 收集 node 所有孩子的 name 属性作为数组
 
-[;] "program" -> "func_decl_list"
+[;] "program" -> "func_decl_list" `
+$().d.functions = $gather($(), "func_decl");
+`
 
 [*;] "func_decl_list" -> "func_decl_list" "func_decl" | "func_decl"
 
-[;1,3] "func_decl" -> 'func' "id" '(' "func_decl_tail"
+[;1,3] "func_decl" -> 'func' "id" '(' "func_decl_post" `
+$decl_func($(0).d.name, $(1).d.return_type);
+$().d.func_decl = {
+    name: $(0).d.name,
+    param: $(1).d.param,
+    return_type: $(1).d.return_type,
+};
+$().d.var_table = $get_var_table();
+$exit_var_table();
+`
 
-[*;1] "func_decl_tail" -> ')' "ret_type_and_func_body"
-[*;0,2] "func_decl_tail" -> "param_list" ')' "ret_type_and_func_body"
+[*;] "func_decl_post" -> "func_decl_post_with_param" | "func_decl_post_no_param"
+[;0,2] "func_decl_post_with_param" -> "param_list" ')' "ret_type_and_func_body" `
+$().d.param = $(0).d.param;
+$().d.return_type = $(1).d.type_name;
+`
+[;1] "func_decl_post_no_param" -> ')' "ret_type_and_func_body" `
+$().d.param = [];
+$().d.return_type = $(0).d.type_name;
+`
+[;] "param_list" -> "param_list_wrapper" `
+$().d.param = $gather($(), "one_param")
+$$().d.param = $().d.param
 
-[*;0,2] "param_list" -> "param_list" ',' "one_param"
-[*;] "param_list" -> "one_param"
+const param_table = $().d.param;
+$mk_var_table();
+if(param_table != undefined && param_table != null) {
+    for(const param of param_table) {
+        $decl_var(param.name, param.type_name);
+    }
+}
+`
+[*;0,2] "param_list_wrapper" -> "param_list_wrapper" ',' "one_param"
+[*;] "param_list_wrapper" -> "one_param"
 
-[;] "one_param" -> "id" "type"
+[;] "one_param" -> "id" "type" `
+$().d.one_param = {
+    "name": $(0).d.name,
+    "type_name": $(1).d.type_name
+};
+`
 
 [*;] "ret_type_and_func_body" -> "type" "block"
 
 # ------------- 语句 -----------------
 
-[;1] "block" -> '{' "stmt_list" '}'
+[;1] "block" -> '{' "stmt_list" '}' `
+`
 
 [*;0,1] "stmt_list" -> "stmt_list" "stmt" ';'
 [*;0] "stmt_list" -> "stmt" ';'
 
-[*;] "stmt" -> "single_stmt" | "comma_stmt"
+[*;] "stmt" -> "single_stmt"
 
-[*;] "single_stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | 'pass' | 'break' | 'continue' | "expr" | "for_stmt" | "decl_and_assign_stmt"
+[*;] "single_stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | "expr_stmt" | "decl_and_assign_stmt"
+[*;] "single_stmt" -> "pass_stmt" | "break_stmt" | "continue_stmt"
 
-[;0,2] "comma_stmt" -> "single_stmt" ',' "stmt"
+[;] "expr_stmt" -> "expr" `
+$().d.code = {
+    "op": "expr"
+}
+`
 
-[;1,2] "decl_stmt" -> 'var' "id" "type"
-[;0,2] "assign_stmt" -> "id" '=' "expr"
-[;0,2] "decl_and_assign_stmt" -> "id" ':=' "expr"
-[;1] "echo_stmt" -> 'echo' "expr"
-[;1] "return_stmt" -> 'return' "expr"
-[;2,4,6,8] "for_stmt" -> 'for' '(' "stmt" ';' "expr" ';' "stmt" ')' "block"
-[;2,4] "while_stmt" -> 'while' '(' "expr" ')' "block"
-[;2,4] "if_else_stmt" -> 'if' '(' "expr" ')' "if_else_stmt_post"
+[;] "pass_stmt" -> 'pass' `
+$().d.code = {
+    "op": "pass",
+};
+`
+[;] "break_stmt" -> 'break' `
+$().d.code = {
+    "op": "break",
+};
+`
+[;] "continue_stmt" -> 'continue' `
+$().d.code = {
+    "op": "continue",
+};
+`
 
-[*;] "if_else_stmt_post" -> "block"
-[*;] "if_else_stmt_post" -> "block" 'else' "if_else_stmt_post_else"
-[*;] "if_else_stmt_post_else" -> "block" | "if_else_stmt"
+[;1,2] "decl_stmt" -> 'var' "id" "type" `
+$decl_var($(0).d.name, $(1).d.type_name);
+$().d.code = {
+    "op": "pass",
+};
+`
+[;0,2] "assign_stmt" -> "id" '=' "expr" `
+$().d.code = {
+    "op": "=",
+    "val": $(1).d.val,
+    "o": $(0).d.name,
+};
+$cltmp();
+`
+
+[;0,2] "decl_and_assign_stmt" -> "id" ':=' "expr" `
+$decl_var($(0).d.name, $(1).d.val.type_name);
+$().d.code = {
+    "op": "=",
+    "o": $(0).d.name,
+    "val": $(1).d.val,
+};
+$cltmp();
+`
+
+[;1] "echo_stmt" -> 'echo' "expr" `
+$().d.code = {
+    "op": "echo",
+    "val": $(0).d.val,
+};
+$cltmp();
+`
+[;1] "return_stmt" -> 'return' "expr" `
+$().d.code = {
+    "op": "return",
+    "val": $(0).d.val
+};
+$cltmp();
+`
+
+[;2,4] "while_stmt" -> 'while' '(' "expr" ')' "block" `
+$().d.code = {
+    "op": "while",
+    "cond": $(0).d.val,
+    "code": 1,
+};
+$cltmp();
+`
+
+[;2,4] "if_else_stmt" -> 'if' '(' "expr" ')' "if_else_stmt_post" `
+$().d.code = {
+    "op": "if",
+    "cond": $(0).d.val,
+    "code_t": $(1).d.code_t,
+    "code_f": $(1).d.code_f,
+    "f_type": $(1).d.f_type,
+};
+$cltmp();
+`
+
+[;] "if_else_stmt_post" -> "block" `
+$().d.code_t = 0;
+$().d.code_f = -1;
+$().d.f_type = "no";
+`
+
+[;0,2] "if_else_stmt_post" -> "block" 'else' "if_else_stmt_post_else" `
+$().d.code_t = 0;
+$().d.code_f = 1;
+$().d.f_type = $(1).d.f_type;
+`
+
+[;] "if_else_stmt_post_else" -> "block" `
+$().d.f_type = "else";
+`
+
+[;] "if_else_stmt_post_else" -> "if_else_stmt" `
+$().d.f_type = "nest";
+`
 
 # -------- 表达式 --------
-[;] "expr" -> "or_expr"
+[*;] "expr" -> "or_expr"
 
-[;] "or_expr" ->  "and_expr" '||' "and_expr"
+[;] "or_expr" ->  "and_expr" '||' "and_expr" `
+const place = $mktmp("bool");
+$().d.code = {
+    "op": "||",
+    "lhs": 0,
+    "rhs": 1,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": "bool",
+};
+$cltmp();
+$cltmp();
+`
 [*;] "or_expr" -> "and_expr"
 
-[;] "and_expr" -> "comp_expr" '&&' "comp_expr"
+[;] "and_expr" -> "comp_expr" '&&' "comp_expr" `
+const place = $mktmp("bool");
+$().d.code = {
+    "op": "&&",
+    "lhs": 0,
+    "rhs": 1,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": "bool",
+};
+$cltmp();
+$cltmp();
+`
 [*;] "and_expr" -> "comp_expr"
 
-[;] "comp_expr" -> "add_expr" "comp_op" "add_expr"
+[;] "comp_expr" -> "add_expr" "comp_op" "add_expr" `
+const place = $mktmp("bool");
+$().d.code = {
+    "op": $(1).d.op_name,
+    "lhs": 0,
+    "rhs": 2,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": "bool",
+};
+$cltmp();
+$cltmp();
+`
 [*;] "comp_expr" -> "add_expr"
 
-[*;] "comp_op" -> '<' | '<=' | '>' | '>=' | '==' | '!='
+[;] "comp_op" -> '<' | '<=' | '>' | '>=' | '==' | '!=' `
+$().d.op_name = $gather_terminal($());
+`
 
-[;] "add_expr" -> "mul_expr" "plus_or_minus_op" "mul_expr"
+[;] "add_expr" -> "mul_expr" "plus_or_minus_op" "mul_expr" `
+const place = $mktmp($(0).d.val.type_name);
+$().d.code = {
+    "op": $(1).d.op_name,
+    "lhs": 0,
+    "rhs": 2,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": $(0).d.val.type_name,
+};
+$cltmp();
+$cltmp();
+`
+[;] "add_expr" -> "mul_expr" "bit_and_or_op" "mul_expr" `
+const place = $mktmp($(0).d.val.type_name);
+$().d.code = {
+    "op": $(1).d.op_name,
+    "lhs": 0,
+    "rhs": 2,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": $(0).d.val.type_name,
+};
+$cltmp();
+$cltmp();
+`
+
 [*;] "add_expr" -> "mul_expr"
 
-[*;] "plus_or_minus_op" -> '+' | '-' | '&' | '|'
+[;] "plus_or_minus_op" -> '+' | '-' `
+$().d.op_name = $gather_terminal($());
+`
+[;] "bit_and_or_op" -> '&' | '|' `
+$().d.op_name = $gather_terminal($());
+`
 
-[;] "mul_expr" -> "unary_expr" "mul_div_or_mod_op" "unary_expr"
+[;] "mul_expr" -> "unary_expr" "mul_div_or_mod_op" "unary_expr" `
+const place = $mktmp($(0).d.val.type_name);
+$().d.code = {
+    "op": $(1).d.op_name,
+    "lhs": 0,
+    "rhs": 2,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": $(0).d.val.type_name,
+};
+$cltmp();
+$cltmp();
+`
 [*;] "mul_expr" -> "unary_expr"
 
-[*;] "mul_div_or_mod_op" -> '*' | '/' | '%'
+[;] "mul_div_or_mod_op" -> '*' | '/' | '%' `
+$().d.op_name = $gather_terminal($());
+`
 
-[;] "unary_expr" -> "unary_op" "primary_expr"
+[;] "unary_expr" -> "unary_op" "primary_expr" `
+const place = $mktmp($(1).d.val.type_name);
+$().d.code = {
+    "op": $(0).d.op_name,
+    "lhs": 1,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": $(1).d.val.type_name
+}
+$cltmp();
+`
 [*;] "unary_expr" -> "primary_expr"
 
-[*;] "unary_op" -> '+' | '-' | '!' | '~'
+[;] "unary_op" -> '+' | '-' | '!' | '~' `
+$().d.op_name = $gather_terminal($());
+`
 
 # -------- primary expression --------
-[*;1] "primary_expr" -> '(' "expr" ')'
-[*;] "primary_expr" -> "id" | "literal" | "call_expr"
+[;1] "primary_expr" -> '(' "expr" ')' `
+const place = $mktmp($(0).d.val.type_name);
+$().d.code = {
+    "op": "=",
+    "lhs": 0,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": $(0).d.val.type_name
+}
+$cltmp();
+`
+[;] "primary_expr" -> "id" `
+const place = $mktmp($type_of_var($(0).d.name));
+$().d.val = {
+    "v": place,
+    "type_name": $type_of_var($(0).d.name)
+};
+$().d.code = {
+    "op": "get",
+    "lhs": $(0).d.name,
+    "o": place,
+}
+`
+
+[;] "primary_expr" -> "literal" `
+const place = $mktmp($(0).d.val.type_name);
+$().d.val = $(0).d.val
+$().d.code = {
+    "op": "get_literal",
+    "lhs": $(0).d.val.v,
+    "o": place,
+}
+$cltmp();
+`
+
+[*;] "primary_expr" -> "call_expr"
 
 # -------- 函数调用 --------
-[;0,2] "call_expr" -> "id" '(' "call_expr_post"
+[;0,2] "call_expr" -> "id" '(' "call_expr_post" `
+const place = $mktmp($type_of_ret($(0).d.name));
+$().d.val = {
+    "v": place,
+    "type_name": $type_of_ret($(0).d.name),
+}
+$().d.code = {
+    "op": "call",
+    "o": place,
+    "args": $(1).d.args,
+    "name": $(0).d.name,
+}
+`
 
-[*;0] "call_expr_post" -> "args" ')'
-[*;-] "call_expr_post" -> ')'
+[*;] "call_expr_post" -> "call_expr_post_with_args" | "call_expr_post_no_args"
+[;0] "call_expr_post_with_args" -> "args" ')' `
+$().d.args = $(0).d.args;
+`
+[;-] "call_expr_post_no_args" -> ')' `
+$().d.args = [];
+`
 
-[;] "args" -> "args_wrapper"
+[;] "args" -> "args_wrapper" `
+$().d.args = $gather($(), "val");
+`
 [*;0,2] "args_wrapper" -> "expr" ',' "args_wrapper"
 [*;] "args_wrapper" -> "expr"

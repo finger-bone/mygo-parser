@@ -1,0 +1,36 @@
+func a(a int, a int) int {
+    var a int;
+    a = a;
+    echo b;
+    return 1;
+    a = 1 || (a && b) != c;
+    var b void;
+    b = ff();
+    var f float;
+    f = 0.1;
+    echo max(a, b);
+    while(a != b) {
+        pass;
+        if(a == c || d) {
+            pass;
+        } else {
+            a = 1;
+        };
+        if(a == c) {
+            pass;
+        } else if(a == b) {
+            pass;
+        } else {
+            pass;
+        };
+    };
+    for(a int := 1; a < 10; a = a + 1) {
+        pass;
+    };
+    echo "this is";
+    pass;
+}
+
+func ff() void {
+    pass;
+}

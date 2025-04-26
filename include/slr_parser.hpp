@@ -62,12 +62,14 @@ struct Production {
   std::vector<size_t> ast_children;
   bool do_flatten = false;
   bool use_all_children = false;
+  std::string sematic_actions;
 
   Production(std::string left, std::vector<SLRSymbol> right,
              std::vector<size_t> ast_children, bool do_flatten,
-             bool use_all_children)
+             bool use_all_children, std::string sematic_actions)
       : left(left), right(right), ast_children(ast_children),
-        do_flatten(do_flatten), use_all_children(use_all_children) {}
+        do_flatten(do_flatten), use_all_children(use_all_children),
+        sematic_actions(sematic_actions) {}
 
   bool operator==(const Production &other) const {
     return left == other.left && right == other.right;
@@ -261,7 +263,7 @@ private:
   void handle_shift_action(size_t i, const SLRSymbol &symbol, int next_state);
 
   // 将语法规则转换为增广文法
-  void augment_grammar();
+  void initialize_augment_grammar();
 
   // 获取符号的FIRST集合
   std::unordered_set<SLRSymbol> get_first(const SLRSymbol &symbol);

@@ -321,7 +321,7 @@ void SLR1Parser::compute_follow_sets() {
 }
 
 // 将语法规则转换为增广文法
-void SLR1Parser::augment_grammar() {
+void SLR1Parser::initialize_augment_grammar() {
   productions.clear();
 
   // 设置增广文法的起始符号
@@ -331,7 +331,7 @@ void SLR1Parser::augment_grammar() {
   std::vector<SLRSymbol> new_prod;
   new_prod.push_back(SLRSymbol(start_symbol, SLRSymbolType::NON_TERMINAL));
   productions.push_back(
-      Production(augmented_start_symbol, new_prod, {0}, false, true));
+      Production{augmented_start_symbol, new_prod, {0}, false, true, ""});
 
   // 添加原始文法的产生式
   for (const auto &rules_pair : grammar.rule_map) {
@@ -346,9 +346,9 @@ void SLR1Parser::augment_grammar() {
         for (auto child : rule.ast_rule.children) {
           children_indices.push_back(child);
         }
-        productions.push_back(Production{rule.left.name, symbols,
-                                         children_indices, do_flatten,
-                                         rule.ast_rule.use_all_children});
+        productions.push_back(
+            Production{rule.left.name, symbols, children_indices, do_flatten,
+                       rule.ast_rule.use_all_children, rule.sematic_actions});
       }
     }
   }

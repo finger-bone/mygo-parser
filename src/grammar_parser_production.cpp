@@ -20,8 +20,7 @@ std::optional<ProductionList> ProductionList::parse(const std::string &str) {
   size_t i = 0;
   while (i < str.size()) {
     // 忽略空格、制表符等（保留换行符）
-    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i])) &&
-           str[i] != '\n') {
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) {
       i++;
     }
     if (i >= str.size()) {

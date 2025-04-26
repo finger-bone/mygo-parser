@@ -5,10 +5,27 @@
         {
           "children": [
             {
+              "sematic": "",
+              "type": "terminal",
+              "value": "a"
+            },
+            {
+              "sematic": "",
+              "type": "terminal",
+              "value": "a"
+            },
+            {
+              "sematic": "",
+              "type": "terminal",
+              "value": "a"
+            },
+            {
+              "sematic": "",
               "type": "terminal",
               "value": "a"
             }
           ],
+          "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
           "type": "non-terminal",
           "value": "id"
         },
@@ -17,122 +34,52 @@
             {
               "children": [
                 {
-                  "type": "terminal",
-                  "value": "a"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "id"
-            },
-            {
-              "children": [
-                {
-                  "type": "terminal",
-                  "value": "int"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "type"
-            }
-          ],
-          "type": "non-terminal",
-          "value": "one_param"
-        },
-        {
-          "children": [
-            {
-              "children": [
-                {
-                  "type": "terminal",
-                  "value": "a"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "id"
-            },
-            {
-              "children": [
-                {
-                  "type": "terminal",
-                  "value": "int"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "type"
-            }
-          ],
-          "type": "non-terminal",
-          "value": "one_param"
-        },
-        {
-          "children": [
-            {
-              "type": "terminal",
-              "value": "int"
-            }
-          ],
-          "type": "non-terminal",
-          "value": "type"
-        },
-        {
-          "children": [
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "a"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "id"
-                },
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "int"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "type"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "decl_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "a"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "id"
-                },
-                {
                   "children": [
                     {
                       "children": [
                         {
+                          "sematic": "",
                           "type": "terminal",
                           "value": "a"
                         }
                       ],
+                      "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
                       "type": "non-terminal",
                       "value": "id"
+                    },
+                    {
+                      "children": [
+                        {
+                          "sematic": "",
+                          "type": "terminal",
+                          "value": "int"
+                        }
+                      ],
+                      "sematic": "\n$().d.type_name = \"int\"\n",
+                      "type": "non-terminal",
+                      "value": "type"
                     }
                   ],
+                  "sematic": "\n$().d.one_param = {\n    \"name\": $(0).d.name,\n    \"type_name\": $(1).d.type_name\n};\n",
                   "type": "non-terminal",
-                  "value": "expr"
+                  "value": "one_param"
                 }
               ],
+              "sematic": "\n$().d.param = $gather($(), \"one_param\")\n$$().d.param = $().d.param\nconst param_table = $().d.param;\n$mk_var_table();\nif(param_table != undefined && param_table != null) {\n    for(const param of param_table) {\n        $decl_var(param.name, param.type_name);\n    }\n}\n",
               "type": "non-terminal",
-              "value": "assign_stmt"
+              "value": "param_list"
+            },
+            {
+              "children": [
+                {
+                  "sematic": "",
+                  "type": "terminal",
+                  "value": "int"
+                }
+              ],
+              "sematic": "\n$().d.type_name = \"int\"\n",
+              "type": "non-terminal",
+              "value": "type"
             },
             {
               "children": [
@@ -141,796 +88,43 @@
                     {
                       "children": [
                         {
+                          "sematic": "",
                           "type": "terminal",
                           "value": "b"
                         }
                       ],
+                      "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
                       "type": "non-terminal",
                       "value": "id"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "expr"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "echo_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "1"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "digits"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "uint_literal"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "expr"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "return_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "a"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "id"
-                },
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "type": "terminal",
-                                  "value": "1"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "digits"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "uint_literal"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "||"
-                        },
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "children": [
-                                    {
-                                      "children": [
-                                        {
-                                          "type": "terminal",
-                                          "value": "a"
-                                        }
-                                      ],
-                                      "type": "non-terminal",
-                                      "value": "id"
-                                    },
-                                    {
-                                      "type": "terminal",
-                                      "value": "&&"
-                                    },
-                                    {
-                                      "children": [
-                                        {
-                                          "type": "terminal",
-                                          "value": "b"
-                                        }
-                                      ],
-                                      "type": "non-terminal",
-                                      "value": "id"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "and_expr"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "expr"
-                            },
-                            {
-                              "type": "terminal",
-                              "value": "!="
-                            },
-                            {
-                              "children": [
-                                {
-                                  "type": "terminal",
-                                  "value": "c"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "id"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "comp_expr"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "or_expr"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "expr"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "assign_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "b"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "id"
-                },
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "void"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "type"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "decl_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "b"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "id"
-                },
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "f"
-                            },
-                            {
-                              "type": "terminal",
-                              "value": "f"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "id"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "call_expr"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "expr"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "assign_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "f"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "id"
-                },
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "float"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "type"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "decl_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "f"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "id"
-                },
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "0"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "digits"
-                        },
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "1"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "digits"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "float_literal"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "expr"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "assign_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "m"
-                            },
-                            {
-                              "type": "terminal",
-                              "value": "a"
-                            },
-                            {
-                              "type": "terminal",
-                              "value": "x"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "id"
-                        },
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "children": [
-                                    {
-                                      "type": "terminal",
-                                      "value": "a"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "id"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "expr"
-                            },
-                            {
-                              "children": [
-                                {
-                                  "children": [
-                                    {
-                                      "type": "terminal",
-                                      "value": "b"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "id"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "expr"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "args"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "call_expr"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "expr"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "echo_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "a"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "id"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "!="
-                        },
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "b"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "id"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "comp_expr"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "expr"
-                },
-                {
-                  "children": [
-                    {
-                      "type": "terminal",
-                      "value": "pass"
                     },
                     {
                       "children": [
                         {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "children": [
-                                    {
-                                      "children": [
-                                        {
-                                          "type": "terminal",
-                                          "value": "a"
-                                        }
-                                      ],
-                                      "type": "non-terminal",
-                                      "value": "id"
-                                    },
-                                    {
-                                      "type": "terminal",
-                                      "value": "=="
-                                    },
-                                    {
-                                      "children": [
-                                        {
-                                          "type": "terminal",
-                                          "value": "c"
-                                        }
-                                      ],
-                                      "type": "non-terminal",
-                                      "value": "id"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "comp_expr"
-                                },
-                                {
-                                  "type": "terminal",
-                                  "value": "||"
-                                },
-                                {
-                                  "children": [
-                                    {
-                                      "type": "terminal",
-                                      "value": "d"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "id"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "or_expr"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "expr"
-                        },
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "pass"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "block"
-                        },
-                        {
+                          "sematic": "",
                           "type": "terminal",
-                          "value": "else"
-                        },
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "children": [
-                                    {
-                                      "type": "terminal",
-                                      "value": "a"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "id"
-                                },
-                                {
-                                  "children": [
-                                    {
-                                      "children": [
-                                        {
-                                          "children": [
-                                            {
-                                              "type": "terminal",
-                                              "value": "1"
-                                            }
-                                          ],
-                                          "type": "non-terminal",
-                                          "value": "digits"
-                                        }
-                                      ],
-                                      "type": "non-terminal",
-                                      "value": "uint_literal"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "expr"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "assign_stmt"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "block"
+                          "value": "int"
                         }
                       ],
+                      "sematic": "\n$().d.type_name = \"int\"\n",
                       "type": "non-terminal",
-                      "value": "if_else_stmt"
-                    },
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "children": [
-                                    {
-                                      "type": "terminal",
-                                      "value": "a"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "id"
-                                },
-                                {
-                                  "type": "terminal",
-                                  "value": "=="
-                                },
-                                {
-                                  "children": [
-                                    {
-                                      "type": "terminal",
-                                      "value": "c"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "id"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "comp_expr"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "expr"
-                        },
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "pass"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "block"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "else"
-                        },
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "children": [
-                                    {
-                                      "children": [
-                                        {
-                                          "type": "terminal",
-                                          "value": "a"
-                                        }
-                                      ],
-                                      "type": "non-terminal",
-                                      "value": "id"
-                                    },
-                                    {
-                                      "type": "terminal",
-                                      "value": "=="
-                                    },
-                                    {
-                                      "children": [
-                                        {
-                                          "type": "terminal",
-                                          "value": "b"
-                                        }
-                                      ],
-                                      "type": "non-terminal",
-                                      "value": "id"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "comp_expr"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "expr"
-                            },
-                            {
-                              "children": [
-                                {
-                                  "type": "terminal",
-                                  "value": "pass"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "block"
-                            },
-                            {
-                              "type": "terminal",
-                              "value": "else"
-                            },
-                            {
-                              "children": [
-                                {
-                                  "type": "terminal",
-                                  "value": "pass"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "block"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "if_else_stmt"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "if_else_stmt"
+                      "value": "type"
                     }
                   ],
+                  "sematic": "\n$decl_var($(0).d.name, $(1).d.type_name);\n$().d.code = {\n    \"op\": \"pass\",\n};\n",
                   "type": "non-terminal",
-                  "value": "block"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "while_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "a"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "id"
-                        },
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "children": [
-                                    {
-                                      "type": "terminal",
-                                      "value": "1"
-                                    }
-                                  ],
-                                  "type": "non-terminal",
-                                  "value": "digits"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "uint_literal"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "expr"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "decl_and_assign_stmt"
-                    },
-                    {
-                      "children": [
-                        {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "b"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "id"
-                        },
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "type": "terminal",
-                                  "value": "c"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "id"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "expr"
-                        }
-                      ],
-                      "type": "non-terminal",
-                      "value": "decl_and_assign_stmt"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "comma_stmt"
+                  "value": "decl_stmt"
                 },
                 {
                   "children": [
                     {
                       "children": [
                         {
-                          "children": [
-                            {
-                              "type": "terminal",
-                              "value": "a"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "id"
-                        },
-                        {
+                          "sematic": "",
                           "type": "terminal",
-                          "value": "<"
-                        },
-                        {
-                          "children": [
-                            {
-                              "children": [
-                                {
-                                  "type": "terminal",
-                                  "value": "1"
-                                },
-                                {
-                                  "type": "terminal",
-                                  "value": "0"
-                                }
-                              ],
-                              "type": "non-terminal",
-                              "value": "digits"
-                            }
-                          ],
-                          "type": "non-terminal",
-                          "value": "uint_literal"
+                          "value": "b"
                         }
                       ],
-                      "type": "non-terminal",
-                      "value": "comp_expr"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "expr"
-                },
-                {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "type": "terminal",
-                          "value": "a"
-                        }
-                      ],
+                      "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
                       "type": "non-terminal",
                       "value": "id"
                     },
@@ -941,110 +135,106 @@
                             {
                               "children": [
                                 {
+                                  "sematic": "",
                                   "type": "terminal",
                                   "value": "a"
                                 }
                               ],
+                              "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
                               "type": "non-terminal",
                               "value": "id"
-                            },
+                            }
+                          ],
+                          "sematic": "\nconst place = $mktmp($type_of_var($(0).d.name));\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $type_of_var($(0).d.name)\n};\n$().d.code = {\n    \"op\": \"get\",\n    \"lhs\": $(0).d.name,\n    \"o\": place,\n}\n",
+                          "type": "non-terminal",
+                          "value": "primary_expr"
+                        },
+                        {
+                          "children": [
                             {
+                              "sematic": "",
                               "type": "terminal",
-                              "value": "+"
-                            },
+                              "value": "*"
+                            }
+                          ],
+                          "sematic": "\n$().d.op_name = $gather_terminal($());\n",
+                          "type": "non-terminal",
+                          "value": "mul_div_or_mod_op"
+                        },
+                        {
+                          "children": [
                             {
                               "children": [
                                 {
                                   "children": [
                                     {
+                                      "sematic": "",
                                       "type": "terminal",
-                                      "value": "1"
+                                      "value": "2"
                                     }
                                   ],
+                                  "sematic": "\n$().d.literal = $gather_terminal($())\n",
                                   "type": "non-terminal",
                                   "value": "digits"
                                 }
                               ],
+                              "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
                               "type": "non-terminal",
                               "value": "uint_literal"
                             }
                           ],
+                          "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
                           "type": "non-terminal",
-                          "value": "add_expr"
+                          "value": "primary_expr"
                         }
                       ],
+                      "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.code = {\n    \"op\": $(1).d.op_name,\n    \"lhs\": 0,\n    \"rhs\": 2,\n    \"o\": place,\n};\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $(0).d.val.type_name,\n};\n$cltmp();\n$cltmp();\n",
                       "type": "non-terminal",
-                      "value": "expr"
+                      "value": "mul_expr"
                     }
                   ],
+                  "sematic": "\n$().d.code = {\n    \"op\": \"=\",\n    \"val\": $(1).d.val,\n    \"o\": $(0).d.name,\n};\n$cltmp();\n",
                   "type": "non-terminal",
                   "value": "assign_stmt"
                 },
                 {
                   "children": [
                     {
-                      "type": "terminal",
-                      "value": "pass"
-                    }
-                  ],
-                  "type": "non-terminal",
-                  "value": "block"
-                }
-              ],
-              "type": "non-terminal",
-              "value": "for_stmt"
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    {
                       "children": [
                         {
-                          "type": "terminal",
-                          "value": "t"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "h"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "i"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "s"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "i"
-                        },
-                        {
-                          "type": "terminal",
-                          "value": "s"
+                          "children": [
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "b"
+                            }
+                          ],
+                          "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                          "type": "non-terminal",
+                          "value": "id"
                         }
                       ],
+                      "sematic": "\nconst place = $mktmp($type_of_var($(0).d.name));\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $type_of_var($(0).d.name)\n};\n$().d.code = {\n    \"op\": \"get\",\n    \"lhs\": $(0).d.name,\n    \"o\": place,\n}\n",
                       "type": "non-terminal",
-                      "value": "string_literal"
+                      "value": "primary_expr"
                     }
                   ],
+                  "sematic": "\n$().d.code = {\n    \"op\": \"return\",\n    \"val\": $(0).d.val\n};\n$cltmp();\n",
                   "type": "non-terminal",
-                  "value": "expr"
+                  "value": "return_stmt"
                 }
               ],
+              "sematic": "\n",
               "type": "non-terminal",
-              "value": "echo_stmt"
-            },
-            {
-              "type": "terminal",
-              "value": "pass"
+              "value": "block"
             }
           ],
+          "sematic": "\n$().d.param = $(0).d.param;\n$().d.return_type = $(1).d.type_name;\n",
           "type": "non-terminal",
-          "value": "block"
+          "value": "func_decl_post_with_param"
         }
       ],
+      "sematic": "\n$decl_func($(0).d.name, $(1).d.return_type);\n$().d.func_decl = {\n    name: $(0).d.name,\n    param: $(1).d.param,\n    return_type: $(1).d.return_type,\n};\n$().d.var_table = $get_var_table();\n$exit_var_table();\n",
       "type": "non-terminal",
       "value": "func_decl"
     },
@@ -1053,42 +243,504 @@
         {
           "children": [
             {
+              "sematic": "",
               "type": "terminal",
-              "value": "f"
+              "value": "m"
             },
             {
+              "sematic": "",
               "type": "terminal",
-              "value": "f"
+              "value": "a"
+            },
+            {
+              "sematic": "",
+              "type": "terminal",
+              "value": "i"
+            },
+            {
+              "sematic": "",
+              "type": "terminal",
+              "value": "n"
             }
           ],
+          "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
           "type": "non-terminal",
           "value": "id"
         },
         {
           "children": [
             {
-              "type": "terminal",
-              "value": "void"
-            }
-          ],
-          "type": "non-terminal",
-          "value": "type"
-        },
-        {
-          "children": [
+              "children": [
+                {
+                  "sematic": "",
+                  "type": "terminal",
+                  "value": "void"
+                }
+              ],
+              "sematic": "\n$().d.type_name = 'void'\n",
+              "type": "non-terminal",
+              "value": "type"
+            },
             {
-              "type": "terminal",
-              "value": "pass"
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "a"
+                            },
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "a"
+                            },
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "a"
+                            },
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "a"
+                            }
+                          ],
+                          "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                          "type": "non-terminal",
+                          "value": "id"
+                        },
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "children": [
+                                        {
+                                          "children": [
+                                            {
+                                              "sematic": "",
+                                              "type": "terminal",
+                                              "value": "2"
+                                            }
+                                          ],
+                                          "sematic": "\n$().d.literal = $gather_terminal($())\n",
+                                          "type": "non-terminal",
+                                          "value": "digits"
+                                        }
+                                      ],
+                                      "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
+                                      "type": "non-terminal",
+                                      "value": "uint_literal"
+                                    }
+                                  ],
+                                  "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
+                                  "type": "non-terminal",
+                                  "value": "primary_expr"
+                                }
+                              ],
+                              "sematic": "\n$().d.args = $gather($(), \"val\");\n",
+                              "type": "non-terminal",
+                              "value": "args"
+                            }
+                          ],
+                          "sematic": "\n$().d.args = $(0).d.args;\n",
+                          "type": "non-terminal",
+                          "value": "call_expr_post_with_args"
+                        }
+                      ],
+                      "sematic": "\nconst place = $mktmp($type_of_ret($(0).d.name));\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $type_of_ret($(0).d.name),\n}\n$().d.code = {\n    \"op\": \"call\",\n    \"o\": place,\n    \"args\": $(1).d.args,\n    \"name\": $(0).d.name,\n}\n",
+                      "type": "non-terminal",
+                      "value": "call_expr"
+                    }
+                  ],
+                  "sematic": "\n$().d.code = {\n    \"op\": \"echo\",\n    \"val\": $(0).d.val,\n};\n$cltmp();\n",
+                  "type": "non-terminal",
+                  "value": "echo_stmt"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "sematic": "",
+                          "type": "terminal",
+                          "value": "a"
+                        }
+                      ],
+                      "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                      "type": "non-terminal",
+                      "value": "id"
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "sematic": "",
+                                  "type": "terminal",
+                                  "value": "1"
+                                }
+                              ],
+                              "sematic": "\n$().d.literal = $gather_terminal($())\n",
+                              "type": "non-terminal",
+                              "value": "digits"
+                            }
+                          ],
+                          "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
+                          "type": "non-terminal",
+                          "value": "uint_literal"
+                        }
+                      ],
+                      "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
+                      "type": "non-terminal",
+                      "value": "primary_expr"
+                    }
+                  ],
+                  "sematic": "\n$decl_var($(0).d.name, $(1).d.val.type_name);\n$().d.code = {\n    \"op\": \"=\",\n    \"o\": $(0).d.name,\n    \"val\": $(1).d.val,\n};\n$cltmp();\n",
+                  "type": "non-terminal",
+                  "value": "decl_and_assign_stmt"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "sematic": "",
+                                  "type": "terminal",
+                                  "value": "a"
+                                }
+                              ],
+                              "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                              "type": "non-terminal",
+                              "value": "id"
+                            }
+                          ],
+                          "sematic": "\nconst place = $mktmp($type_of_var($(0).d.name));\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $type_of_var($(0).d.name)\n};\n$().d.code = {\n    \"op\": \"get\",\n    \"lhs\": $(0).d.name,\n    \"o\": place,\n}\n",
+                          "type": "non-terminal",
+                          "value": "primary_expr"
+                        },
+                        {
+                          "children": [
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "<"
+                            }
+                          ],
+                          "sematic": "\n$().d.op_name = $gather_terminal($());\n",
+                          "type": "non-terminal",
+                          "value": "comp_op"
+                        },
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "sematic": "",
+                                      "type": "terminal",
+                                      "value": "1"
+                                    },
+                                    {
+                                      "sematic": "",
+                                      "type": "terminal",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "sematic": "\n$().d.literal = $gather_terminal($())\n",
+                                  "type": "non-terminal",
+                                  "value": "digits"
+                                }
+                              ],
+                              "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
+                              "type": "non-terminal",
+                              "value": "uint_literal"
+                            }
+                          ],
+                          "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
+                          "type": "non-terminal",
+                          "value": "primary_expr"
+                        }
+                      ],
+                      "sematic": "\nconst place = $mktmp(\"bool\");\n$().d.code = {\n    \"op\": $(1).d.op_name,\n    \"lhs\": 0,\n    \"rhs\": 2,\n    \"o\": place,\n};\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"bool\",\n};\n$cltmp();\n$cltmp();\n",
+                      "type": "non-terminal",
+                      "value": "comp_expr"
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "sematic": "",
+                                      "type": "terminal",
+                                      "value": "a"
+                                    }
+                                  ],
+                                  "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                                  "type": "non-terminal",
+                                  "value": "id"
+                                }
+                              ],
+                              "sematic": "\nconst place = $mktmp($type_of_var($(0).d.name));\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $type_of_var($(0).d.name)\n};\n$().d.code = {\n    \"op\": \"get\",\n    \"lhs\": $(0).d.name,\n    \"o\": place,\n}\n",
+                              "type": "non-terminal",
+                              "value": "primary_expr"
+                            }
+                          ],
+                          "sematic": "\n$().d.code = {\n    \"op\": \"echo\",\n    \"val\": $(0).d.val,\n};\n$cltmp();\n",
+                          "type": "non-terminal",
+                          "value": "echo_stmt"
+                        },
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "sematic": "",
+                                  "type": "terminal",
+                                  "value": "a"
+                                }
+                              ],
+                              "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                              "type": "non-terminal",
+                              "value": "id"
+                            },
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "children": [
+                                        {
+                                          "sematic": "",
+                                          "type": "terminal",
+                                          "value": "a"
+                                        }
+                                      ],
+                                      "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                                      "type": "non-terminal",
+                                      "value": "id"
+                                    }
+                                  ],
+                                  "sematic": "\nconst place = $mktmp($type_of_var($(0).d.name));\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $type_of_var($(0).d.name)\n};\n$().d.code = {\n    \"op\": \"get\",\n    \"lhs\": $(0).d.name,\n    \"o\": place,\n}\n",
+                                  "type": "non-terminal",
+                                  "value": "primary_expr"
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "sematic": "",
+                                      "type": "terminal",
+                                      "value": "+"
+                                    }
+                                  ],
+                                  "sematic": "\n$().d.op_name = $gather_terminal($());\n",
+                                  "type": "non-terminal",
+                                  "value": "plus_or_minus_op"
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "children": [
+                                        {
+                                          "children": [
+                                            {
+                                              "sematic": "",
+                                              "type": "terminal",
+                                              "value": "1"
+                                            }
+                                          ],
+                                          "sematic": "\n$().d.literal = $gather_terminal($())\n",
+                                          "type": "non-terminal",
+                                          "value": "digits"
+                                        }
+                                      ],
+                                      "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
+                                      "type": "non-terminal",
+                                      "value": "uint_literal"
+                                    }
+                                  ],
+                                  "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
+                                  "type": "non-terminal",
+                                  "value": "primary_expr"
+                                }
+                              ],
+                              "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.code = {\n    \"op\": $(1).d.op_name,\n    \"lhs\": 0,\n    \"rhs\": 2,\n    \"o\": place,\n};\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $(0).d.val.type_name,\n};\n$cltmp();\n$cltmp();\n",
+                              "type": "non-terminal",
+                              "value": "add_expr"
+                            }
+                          ],
+                          "sematic": "\n$().d.code = {\n    \"op\": \"=\",\n    \"val\": $(1).d.val,\n    \"o\": $(0).d.name,\n};\n$cltmp();\n",
+                          "type": "non-terminal",
+                          "value": "assign_stmt"
+                        },
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "children": [
+                                        {
+                                          "sematic": "",
+                                          "type": "terminal",
+                                          "value": "a"
+                                        }
+                                      ],
+                                      "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                                      "type": "non-terminal",
+                                      "value": "id"
+                                    }
+                                  ],
+                                  "sematic": "\nconst place = $mktmp($type_of_var($(0).d.name));\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $type_of_var($(0).d.name)\n};\n$().d.code = {\n    \"op\": \"get\",\n    \"lhs\": $(0).d.name,\n    \"o\": place,\n}\n",
+                                  "type": "non-terminal",
+                                  "value": "primary_expr"
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "sematic": "",
+                                      "type": "terminal",
+                                      "value": "=="
+                                    }
+                                  ],
+                                  "sematic": "\n$().d.op_name = $gather_terminal($());\n",
+                                  "type": "non-terminal",
+                                  "value": "comp_op"
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "children": [
+                                        {
+                                          "children": [
+                                            {
+                                              "sematic": "",
+                                              "type": "terminal",
+                                              "value": "5"
+                                            }
+                                          ],
+                                          "sematic": "\n$().d.literal = $gather_terminal($())\n",
+                                          "type": "non-terminal",
+                                          "value": "digits"
+                                        }
+                                      ],
+                                      "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
+                                      "type": "non-terminal",
+                                      "value": "uint_literal"
+                                    }
+                                  ],
+                                  "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
+                                  "type": "non-terminal",
+                                  "value": "primary_expr"
+                                }
+                              ],
+                              "sematic": "\nconst place = $mktmp(\"bool\");\n$().d.code = {\n    \"op\": $(1).d.op_name,\n    \"lhs\": 0,\n    \"rhs\": 2,\n    \"o\": place,\n};\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"bool\",\n};\n$cltmp();\n$cltmp();\n",
+                              "type": "non-terminal",
+                              "value": "comp_expr"
+                            },
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "children": [
+                                        {
+                                          "sematic": "",
+                                          "type": "terminal",
+                                          "value": "break"
+                                        }
+                                      ],
+                                      "sematic": "\n$().d.code = {\n    \"op\": \"break\",\n};\n",
+                                      "type": "non-terminal",
+                                      "value": "break_stmt"
+                                    }
+                                  ],
+                                  "sematic": "\n",
+                                  "type": "non-terminal",
+                                  "value": "block"
+                                }
+                              ],
+                              "sematic": "\n$().d.code_t = 0;\n$().d.code_f = -1;\n$().d.f_type = \"no\";\n",
+                              "type": "non-terminal",
+                              "value": "if_else_stmt_post"
+                            }
+                          ],
+                          "sematic": "\n$().d.code = {\n    \"op\": \"if\",\n    \"cond\": $(0).d.val,\n    \"code_t\": $(1).d.code_t,\n    \"code_f\": $(1).d.code_f,\n    \"f_type\": $(1).d.f_type,\n};\n$cltmp();\n",
+                          "type": "non-terminal",
+                          "value": "if_else_stmt"
+                        }
+                      ],
+                      "sematic": "\n",
+                      "type": "non-terminal",
+                      "value": "block"
+                    }
+                  ],
+                  "sematic": "\n$().d.code = {\n    \"op\": \"while\",\n    \"cond\": $(0).d.val,\n    \"code\": 1,\n};\n$cltmp();\n",
+                  "type": "non-terminal",
+                  "value": "while_stmt"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "nil"
+                            }
+                          ],
+                          "sematic": "\nconst place = $mktmp(\"void\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": null,\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"void\",\n};\n",
+                          "type": "non-terminal",
+                          "value": "void_literal"
+                        }
+                      ],
+                      "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
+                      "type": "non-terminal",
+                      "value": "primary_expr"
+                    }
+                  ],
+                  "sematic": "\n$().d.code = {\n    \"op\": \"return\",\n    \"val\": $(0).d.val\n};\n$cltmp();\n",
+                  "type": "non-terminal",
+                  "value": "return_stmt"
+                }
+              ],
+              "sematic": "\n",
+              "type": "non-terminal",
+              "value": "block"
             }
           ],
+          "sematic": "\n$().d.param = [];\n$().d.return_type = $(0).d.type_name;\n",
           "type": "non-terminal",
-          "value": "block"
+          "value": "func_decl_post_no_param"
         }
       ],
+      "sematic": "\n$decl_func($(0).d.name, $(1).d.return_type);\n$().d.func_decl = {\n    name: $(0).d.name,\n    param: $(1).d.param,\n    return_type: $(1).d.return_type,\n};\n$().d.var_table = $get_var_table();\n$exit_var_table();\n",
       "type": "non-terminal",
       "value": "func_decl"
     }
   ],
+  "sematic": "\n$().d.functions = $gather($(), \"func_decl\");\n",
   "type": "non-terminal",
   "value": "program"
 }

@@ -9,7 +9,7 @@ bool SLR1Parser::build_parse_table(const std::string &start_symbol) {
   this->augmented_start_symbol = start_symbol + "'";
 
   // 增广文法
-  augment_grammar();
+  initialize_augment_grammar();
 
   // 计算FIRST和FOLLOW集合
   compute_first_sets();

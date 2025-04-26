@@ -42,17 +42,32 @@ std::optional<GrammarRule> GrammarRule::parse(const std::string &str) {
   if (!non_term) {
     return std::nullopt;
   }
+
+  // 查看右侧有没有 `` 包裹的部分，如果有就是语义动作，要从 rhs 提取并删除
+  size_t sem_start = rhs.find('`');
+  size_t sem_end = rhs.find('`', sem_start + 1);
+  std::string sem_str;
+
+  if (sem_start != std::string::npos && sem_end != std::string::npos &&
+      sem_end > sem_start) {
+    sem_str = rhs.substr(sem_start + 1,
+                         sem_end - sem_start - 1); // 取出不含 ` 的语义动作代码
+    rhs.erase(sem_start, sem_end - sem_start + 1); // 删除整个 `...`
+  }
+
   // 右侧的产生式列表直接传给 ProductionList::parse 进行解析
   auto prod_list = ProductionList::parse(rhs);
   if (!prod_list) {
     return std::nullopt;
   }
-  return GrammarRule{non_term.value(), prod_list.value(), ast_rule.value()};
+
+  return GrammarRule{non_term.value(), prod_list.value(), ast_rule.value(),
+                     sem_str};
 }
 
 std::string GrammarRule::to_string() const {
   return this->ast_rule.to_string() + " " + this->left.to_string() + " -> " +
-         this->right.to_string();
+         this->right.to_string() + " `" + this->sematic_actions + "`";
 }
 
 } // namespace grammar

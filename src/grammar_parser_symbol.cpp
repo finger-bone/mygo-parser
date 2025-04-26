@@ -17,7 +17,8 @@ std::optional<Terminal> Terminal::parse(const std::string &str) {
         special_terminals = {{"n", "\n"},     {"quot", "\""},
                              {"squot", "'"},  {"vertical", "|"},
                              {"rarrow", "-"}, {"langle", "<"},
-                             {"rangle", ">"}, {"hash", "#"}};
+                             {"rangle", ">"}, {"hash", "#"},
+                             {"semic", ";"},  {"bquot", "`"}};
 
     std::string special = str.substr(1, str.size() - 2);
     auto it = special_terminals.find(special);
