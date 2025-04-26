@@ -20,7 +20,19 @@
 
 ## Grammar File Format
 
-The grammar file follows these simple rules:
+\[AST Tree Information\] production rule `sematic actions`
+
+For AST Tree Information, \[DO_FLATTEN_LABLE;TREE_NODES\]
+
+If DO_FLATTEN_LABLE is *, the reduced CST will be flattened in AST, or else leave it empty (keep the semicolon).
+
+TREE_NODES should be a list of number seperated by comma, indicating which CST node should be put into the AST.
+
+If TREE_NODES is empty, it means **all** CST nodes will be included.
+
+If TREE_NODES is -, it means no CST node will be included.
+
+For production rules, Variable -> \[Terminal | Variable\]+ \(| [Terminal | Variable]+\)\*
 
 1. Basic Elements:
    - Variables are enclosed in double quotes ""
