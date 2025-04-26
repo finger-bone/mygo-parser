@@ -179,7 +179,7 @@ type ControlOps = "break" | "continue" | "while" | "if"
 
 type ArithOps = "=" | "+" | "-" | "*" | "/" | "==" | "!=" | ">" | "<" | ">=" | "<=" | "&&" | "||" | "|" | "&" | "!" | "~";
 
-type Ops = "pass" | "call" | "return" | "expr" | "echo" | ArithOps | SpecialOps | ControlOps;
+type Ops = "pass" | "call" | "return" | "expr" | "echo" | "unreachable" | ArithOps | SpecialOps | ControlOps;
 
 
 type CodeProp = {
@@ -429,27 +429,27 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     throw new Error(`unknown op: ${op}`);
 }
 
-const while_counter: IdxCounter = {
+const block_counter: IdxCounter = {
     value: 0,
-    increment: () => while_counter.value++,
-    decrement: () => while_counter.value--,
-    reset: () => while_counter.value = 0,
-    valueOf: () => while_counter.value,
+    increment: () => block_counter.value++,
+    decrement: () => block_counter.value--,
+    reset: () => block_counter.value = 0,
+    valueOf: () => block_counter.value,
 }
 
-type WhileLabel = {
+type BlockLabel = {
     value: string,
-    parent: WhileLabel | null,
+    parent: BlockLabel | null,
 }
 
-let cur_while_label: WhileLabel = {
+let cur_while_label: BlockLabel = {
     value: "",
     parent: null,
 }
 
 function make_while_label(): string {
-    const label = `while_${while_counter.value}`;
-    while_counter.increment();
+    const label = `block_${block_counter.value}`;
+    block_counter.increment();
     const new_while_label = {
         value: label,
         parent: cur_while_label,
@@ -458,8 +458,8 @@ function make_while_label(): string {
     return label;
 }
 
-function collect_while_label() {
-    while_counter.decrement();
+function collect_block_label() {
+    block_counter.decrement();
     cur_while_label = cur_while_label.parent!;
 }
 
@@ -476,12 +476,11 @@ function translate_while(while_node: ASTNode): Array<string> {
         `br $${loop_label}`,
     ];
 
-    collect_while_label();
+    collect_block_label();
     return [
         `(block $${block_label}`,
         `  (loop $${loop_label}`,
-        
-        ...indent(indent(indent(body))),
+        ...indent(indent(body)),
         `  )`,
         `)`,
     ]
@@ -519,16 +518,16 @@ function translate_if(if_node: ASTNode): Array<string> {
         if(f_type == "no") {
             return [
                 `(then`,
-                ...indent(true_branch),
+                ...true_branch,
                 `)`,
             ]
         } else if(f_type == "else" || f_type == "nest") {
             return [
                 `(then`,
-               ...indent(true_branch),
+               ...true_branch,
                 `)`,
                 `(else`,
-               ...indent(false_branch),
+               ...false_branch,
                 `)`,
             ]
         } else {
@@ -571,6 +570,7 @@ function translate_stmt(stmt_node: ASTNode): Array<string> {
         return [
             ...translated_ret_expr,
             `local.get $${code_prop.val.v}`,
+            `br $${cur_while_label.value}`
         ]
     } else if(code_prop.op === "expr") {
         return translate_expr(stmt_node.children[0]!);
@@ -594,6 +594,10 @@ function translate_stmt(stmt_node: ASTNode): Array<string> {
         return [
             `br $${cur_while_label.value}`,
         ]
+    } else if(code_prop.op === "unreachable") {
+        return [
+            `unreachable`,
+        ]
     }
     throw new Error(`unknown op: ${code_prop.op}`);
 }
@@ -602,15 +606,12 @@ function translate_block(block_node: ASTNode): Array<string>  {
     const code: Array<string> = [];
     for(const child of block_node.children) {
         code.push(...translate_stmt(child));
-        if(child.d.code?.op == "return") {
-            break;
-        }
     }
     return indent(code);
 }
 
 function translate_func(func_node: ASTNode): string {
-    
+    const block_label = make_while_label();
     const func: FuncDecl = func_node.d.func_decl;
     const param = func.param.map(param => `(param $${param.name} ${to_wasm_type(param.type_name)})`);
     const ret = `(result ${to_wasm_type(func.return_type)})`;
@@ -619,7 +620,7 @@ function translate_func(func_node: ASTNode): string {
     const block_node = func_node.children[1]?.children[block_at]!;
 
 
-    const code: Array<string> = [];
+    const decl_code: Array<string> = [];
     const params = func.param.map(p => { return p.name });
     type VarDeclInfo = {name: string, type_name: type_name, declared: boolean};
     const var_table: VariableTable = func_node.d.var_table;
@@ -635,14 +636,20 @@ function translate_func(func_node: ASTNode): string {
         if(decl_info.declared) {
             continue;
         }
-        code.push(`(local $${decl_info.name} ${to_wasm_type(decl_info.type_name)})`);
+        decl_code.push(`(local $${decl_info.name} ${to_wasm_type(decl_info.type_name)})`);
     }
+    const code = Array<string>();
 
     code.push(
         ...translate_block(block_node)
     );
 
-    return `(func $${func.name} ${param.join(' ')} ${ret}\n${indent(code).join('\n')}\n  )`;
+    const before_body = `(func $${func.name} ${param.join(' ')} ${ret}\n`;
+    const post_body = `\n  )`
+
+    collect_block_label();
+
+    return `${before_body}\n${indent(decl_code).join('\n')}\n  (block $${block_label} (result ${to_wasm_type(func_node.d.func_decl.return_type)})\n${indent(code).join('\n')}\n    )${post_body}`;
 }
 
 function translate(root: ASTNode): string {

@@ -7,13 +7,12 @@ func aaaa(a int) int {
 decl fib int {}
 
 func fib(n int) int {
-    var result int;
     if(n < 2) {
-        result = n;
+        return n;
     } else {
-        result = fib(n - 1) + fib(n - 2);
+        return fib(n - 1) + fib(n - 2);
     };
-    return result;
+    unreachable;
 }
 
 func main() void {

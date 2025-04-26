@@ -210,8 +210,14 @@ $().d.one_param = {
 
 [*;] "stmt" -> "single_stmt"
 
-[*;] "single_stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | "expr_stmt" | "decl_and_assign_stmt"
+[*;] "single_stmt" -> "decl_stmt" | "assign_stmt" | "while_stmt" | "if_else_stmt" | "echo_stmt" | "return_stmt" | "expr_stmt" | "decl_and_assign_stmt" | "unreachable_stmt"
 [*;] "single_stmt" -> "pass_stmt" | "break_stmt" | "continue_stmt"
+
+[;] "unreachable_stmt" -> 'unreachable' `
+$().d.code = {
+    "op": "unreachable",
+};
+`
 
 [;] "expr_stmt" -> "expr" `
 $().d.code = {
@@ -429,7 +435,7 @@ $cltmp();
 $cltmp();
 `
 [*;] "mul_expr" -> "unary_expr"
-
+z
 [;] "mul_div_or_mod_op" -> '*' | '/' | '%' `
 $().d.op_name = $gather_terminal($());
 `
