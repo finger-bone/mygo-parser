@@ -1,9 +1,9 @@
 export function echo(p: any) {
-    console.log(p)
+    console.log(p);
 }
 
-const PAGE_SIZE = 65536 * 2; // 128KB 一页
-const INITIAL_PAGES = 64; // 初始 64 页（128KB）
+const PAGE_SIZE = 32; // 128KB
+const INITIAL_PAGES = 1; // 初始64页（128KB * 64）
 
 // 创建 Memory
 export let memory = new WebAssembly.Memory({ initial: INITIAL_PAGES });
@@ -11,13 +11,22 @@ let buffer = new Uint8Array(memory.buffer);
 
 // 堆管理状态
 let heapStart = 0;
-let freeList: number[] = []; // 简单的 free list，存释放回来的地址
+let freeList: number[] = []; // 仅保存指针
+
+/**
+ * 4字节对齐
+ */
+function align4(n: number): number {
+    return (n + 3) & ~3;
+}
 
 /**
  * 分配指定大小的内存，返回指针
  * @param size - 要分配的字节数
  */
 export function malloc(size: number): number {
+    size = align4(size); // 对齐到4字节
+
     if (freeList.length > 0) {
         const ptr = freeList.pop()!;
         return ptr;
@@ -30,8 +39,9 @@ export function malloc(size: number): number {
     if (heapStart > buffer.byteLength) {
         const extraPages = Math.ceil((heapStart - buffer.byteLength) / PAGE_SIZE);
         memory.grow(extraPages);
-        buffer = new Uint8Array(memory.buffer); // ✨✨ 重新绑定 buffer！
+        buffer = new Uint8Array(memory.buffer); // ✨ 重新绑定 buffer
     }
+
     return ptr;
 }
 

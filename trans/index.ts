@@ -63,7 +63,7 @@ const tmpidx: IdxCounter = {
 }
 function $mktmp(type_name: type_name): string {
     let key = `tmp_${tmpidx.value}`;
-    while (key in variable_table.table && variable_table.table[key] !== type_name) {
+    while (key in variable_table.table && to_wasm_type(variable_table.table[key]!) !== to_wasm_type(type_name)) {
         tmpidx.increment();
         key = `tmp_${tmpidx.value}`;
     }
@@ -103,6 +103,10 @@ function $mk_var_table() {
         table: {}
     }
     variable_table = new_var_table;
+}
+
+function $clear_tmp() {
+    tmpidx.reset();
 }
 
 function $exit_var_table() {
@@ -283,8 +287,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
 
         return [
             ...translate_expr(expr_node.children[lhs]!),
-            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${lhs_val.v}`,
+            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${rhs_val.v}`,
             `${lhs_type}.add`,
             `local.set $${output}`,
@@ -301,8 +305,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
 
         return [
             ...translate_expr(expr_node.children[lhs]!),
-            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${lhs_val.v}`,
+            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${rhs_val.v}`,
             `${lhs_type}.sub`,
             `local.set $${output}`,
@@ -320,8 +324,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
 
         return [
             ...translate_expr(expr_node.children[lhs]!),
-            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${lhs_val.v}`,
+            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${rhs_val.v}`,
             `${lhs_type}.mul`,
             `local.set $${output}`,
@@ -329,8 +333,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     } else if(op === "/") {
         return [
             ...translate_expr(expr_node.children[lhs]!),
-            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${lhs_val.v}`,
+            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${rhs_val.v}`,
             "i32.div_s",
             `local.set $${output}`,
@@ -338,8 +342,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     } else if(op === "==") {
         return [
            ...translate_expr(expr_node.children[lhs]!),
+           `local.get $${lhs_val.v}`,
            ...translate_expr(expr_node.children[rhs]!),
-            `local.get $${lhs_val.v}`,
             `local.get $${rhs_val.v}`,
             `${lhs_type}.eq`,
             `local.set $${output}`,
@@ -347,8 +351,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     } else if(op === "!=") {
         return [
           ...translate_expr(expr_node.children[lhs]!),
+          `local.get $${lhs_val.v}`,
           ...translate_expr(expr_node.children[rhs]!),
-            `local.get $${lhs_val.v}`,
             `local.get $${rhs_val.v}`,
             `${lhs_type}.ne`,
             `local.set $${output}`,
@@ -356,17 +360,17 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     } else if(op === ">") {
         return [
          ...translate_expr(expr_node.children[lhs]!),
+         `local.get $${lhs_val.v}`,
          ...translate_expr(expr_node.children[rhs]!),
-            `local.get $${lhs_val.v}`,
             `local.get $${rhs_val.v}`,
             `${lhs_type}.gt_s`,
             `local.set $${output}`,
         ]
     } else if(op === "<") {
         return [
-        ...translate_expr(expr_node.children[lhs]!),
-        ...translate_expr(expr_node.children[rhs]!),
+            ...translate_expr(expr_node.children[lhs]!),
             `local.get $${lhs_val.v}`,
+            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${rhs_val.v}`,
             `${lhs_type}.lt_s`,
             `local.set $${output}`,
@@ -374,8 +378,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     } else if(op === ">=") {
         return [
         ...translate_expr(expr_node.children[lhs]!),
+        `local.get $${lhs_val.v}`,
         ...translate_expr(expr_node.children[rhs]!),
-            `local.get $${lhs_val.v}`,
             `local.get $${rhs_val.v}`,
             `${lhs_type}.ge_s`,
             `local.set $${output}`,
@@ -383,8 +387,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     } else if(op === "<=") {
         return [
             ...translate_expr(expr_node.children[lhs]!),
-           ...translate_expr(expr_node.children[rhs]!),
             `local.get $${lhs_val.v}`,
+            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${rhs_val.v}`,
             `${lhs_type}.le_s`,
             `local.set $${output}`,
@@ -392,8 +396,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     } else if(op === "&&") {
         return [
         ...translate_expr(expr_node.children[lhs]!),
+        `local.get $${lhs_val.v}`,
         ...translate_expr(expr_node.children[rhs]!),
-            `local.get $${lhs_val.v}`,
             `local.get $${rhs_val.v}`,
             `${lhs_type}.and`,
             `local.set $${output}`,
@@ -401,8 +405,8 @@ function translate_expr(expr_node: ASTNode): Array<string>  {
     } else if(op === "||") {
         return [
             ...translate_expr(expr_node.children[lhs]!),
-           ...translate_expr(expr_node.children[rhs]!),
             `local.get $${lhs_val.v}`,
+            ...translate_expr(expr_node.children[rhs]!),
             `local.get $${rhs_val.v}`,
             `${lhs_type}.or`,
             `local.set $${output}`,
@@ -639,11 +643,12 @@ function translate_stmt(stmt_node: ASTNode): Array<string> {
     } else if(code_prop.op === "store") {
         const store_value = code_prop.val.v;
         const store_ptr = code_prop.o.v;
-        const translated_expr = translate_expr(stmt_node.children[1]!);
+        const l_translated_expr = translate_expr(stmt_node.children[0]!);
+        const r_translated_expr = translate_expr(stmt_node.children[1]!);
         return [
-            ...translate_expr(stmt_node.children[0]!),
-            ...translated_expr,
+            ...l_translated_expr,
             `local.get $${store_ptr}`,
+            ...r_translated_expr,
             `local.get $${store_value}`,
             `call $rt_store`,
         ]

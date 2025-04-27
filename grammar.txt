@@ -165,6 +165,7 @@ $().d.func_decl = {
 };
 $().d.var_table = $get_var_table();
 $exit_var_table();
+$clear_tmp()
 `
 
 [*;] "func_decl_post" -> "func_decl_post_with_param" | "func_decl_post_no_param"
