@@ -10,17 +10,19 @@ func fib(n int, cache int) int {
     } else {
         result := fib(n - 1, cache) + fib(n - 2, cache);
         cache + (n * 4) <- result;
-        echo n;
-        echo result;
         return result;
     };
     unreachable;
 }
 
 func main() void {
-    a := 1;
     cache malloc 1024 * 64;
     echo fib(40, cache);
     free cache;
+    a := 1;
+    while(a < 10) {
+        a = a + 1;
+    };
+    echo a;
     return nil;
 }

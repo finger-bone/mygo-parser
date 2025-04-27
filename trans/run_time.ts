@@ -1,9 +1,9 @@
 export function echo(p: any) {
-    console.log(p);
+  console.log(p);
 }
 
-const PAGE_SIZE = 32; // 128KB
-const INITIAL_PAGES = 1; // 初始64页（128KB * 64）
+const PAGE_SIZE = 65536; // 64KB
+const INITIAL_PAGES = 16; // 初始 16 页（1 MB）
 
 // 创建 Memory
 export let memory = new WebAssembly.Memory({ initial: INITIAL_PAGES });
@@ -14,35 +14,26 @@ let heapStart = 0;
 let freeList: number[] = []; // 仅保存指针
 
 /**
- * 4字节对齐
- */
-function align4(n: number): number {
-    return (n + 3) & ~3;
-}
-
-/**
  * 分配指定大小的内存，返回指针
  * @param size - 要分配的字节数
  */
 export function malloc(size: number): number {
-    size = align4(size); // 对齐到4字节
-
-    if (freeList.length > 0) {
-        const ptr = freeList.pop()!;
-        return ptr;
-    }
-
-    const ptr = heapStart;
-    heapStart += size;
-
-    // 内存不足？扩展 memory
-    if (heapStart > buffer.byteLength) {
-        const extraPages = Math.ceil((heapStart - buffer.byteLength) / PAGE_SIZE);
-        memory.grow(extraPages);
-        buffer = new Uint8Array(memory.buffer); // ✨ 重新绑定 buffer
-    }
-
+  if (freeList.length > 0) {
+    const ptr = freeList.pop()!;
     return ptr;
+  }
+
+  const ptr = heapStart;
+  heapStart += size;
+
+  // 内存不足？扩展 memory
+  if (heapStart > buffer.byteLength) {
+    const extraPages = Math.ceil((heapStart - buffer.byteLength) / PAGE_SIZE);
+    memory.grow(extraPages);
+    buffer = new Uint8Array(memory.buffer); // ✨ 重新绑定 buffer
+  }
+
+  return ptr;
 }
 
 /**
@@ -50,7 +41,7 @@ export function malloc(size: number): number {
  * @param ptr - 要释放的地址
  */
 export function free(ptr: number): void {
-    freeList.push(ptr);
+  freeList.push(ptr);
 }
 
 /**
@@ -59,8 +50,8 @@ export function free(ptr: number): void {
  * @param value - 值
  */
 export function store(ptr: number, value: number): void {
-    const view = new DataView(memory.buffer);
-    view.setInt32(ptr, value, true); // little endian
+  const view = new DataView(memory.buffer);
+  view.setInt32(ptr, value, true); // little endian
 }
 
 /**
@@ -68,6 +59,6 @@ export function store(ptr: number, value: number): void {
  * @param ptr - 地址
  */
 export function load(ptr: number): number {
-    const view = new DataView(memory.buffer);
-    return view.getInt32(ptr, true); // little endian
+  const view = new DataView(memory.buffer);
+  return view.getInt32(ptr, true); // little endian
 }

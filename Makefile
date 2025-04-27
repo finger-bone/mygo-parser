@@ -23,6 +23,7 @@ $(OBJDIR):
 
 format:
 	find include src \( -name "*.hpp" -o -name "*.cpp" \) ! -path "include/nlohmann/*" -exec clang-format -i {} \;
+	cd trans && bunx prettier --write "**/*.ts"
 
 view:
 	bunx serve .
