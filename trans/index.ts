@@ -204,7 +204,9 @@ type ArithOps =
   | "|"
   | "&"
   | "!"
-  | "~";
+  | "~"
+  | "<<"
+  | ">>";
 
 type Ops =
   | "pass"
@@ -453,6 +455,24 @@ function translate_expr(expr_node: ASTNode): Array<string> {
       ...translate_expr(expr_node.children[lhs]!),
       `local.get $${source}`,
       `local.set $${target}`,
+    ];
+  } else if (op === "<<") {
+    return [
+      ...translate_expr(expr_node.children[lhs]!),
+      `local.get $${lhs_val.v}`,
+      ...translate_expr(expr_node.children[rhs]!),
+      `local.get $${rhs_val.v}`,
+      `${lhs_type}.shl`,
+      `local.set $${output}`,
+    ];
+  } else if (op === ">>") {
+    return [
+      ...translate_expr(expr_node.children[lhs]!),
+      `local.get $${lhs_val.v}`,
+      ...translate_expr(expr_node.children[rhs]!),
+      `local.get $${rhs_val.v}`,
+      `${lhs_type}.shr_s`,
+      `local.set $${output}`,
     ];
   }
 

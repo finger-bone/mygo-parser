@@ -202,8 +202,7 @@ $().d.one_param = {
 
 # ------------- 语句 -----------------
 
-[;1] "block" -> '{' "stmt_list" '}' `
-`
+[;1] "block" -> '{' "stmt_list" '}'
 
 [*;0,1] "stmt_list" -> "stmt_list" "stmt" ';'
 [*;0] "stmt_list" -> "stmt" ';'
@@ -400,11 +399,33 @@ $().d.val = {
 $cltmp();
 $cltmp();
 `
-[*;] "comp_expr" -> "add_expr"
+[*;] "comp_expr" -> "shift_expr"
 
 [;] "comp_op" -> '<' | '<=' | '>' | '>=' | '==' | '!=' `
 $().d.op_name = $gather_terminal($());
 `
+
+[;] "shift_expr" -> "add_expr" "shift_op" "shift_expr" `
+const place = $mktmp($(0).d.val.type_name);
+$().d.code = {
+    "op": $(1).d.op_name,
+    "lhs": 0,
+    "rhs": 2,
+    "o": place,
+};
+$().d.val = {
+    "v": place,
+    "type_name": $(0).d.val.type_name,
+};
+$cltmp();
+$cltmp();
+`
+
+[;] "shift_op" -> '<<' | '>>' `
+$().d.op_name = $gather_terminal($());
+` 
+
+[*;] "shift_expr" -> "add_expr"
 
 [;] "add_expr" -> "mul_expr" "plus_or_minus_op" "add_expr" `
 const place = $mktmp($(0).d.val.type_name);

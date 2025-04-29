@@ -539,7 +539,7 @@
                               "value": "return_stmt"
                             }
                           ],
-                          "sematic": "\n",
+                          "sematic": "",
                           "type": "non-terminal",
                           "value": "block"
                         }
@@ -805,7 +805,7 @@
                               "value": "return_stmt"
                             }
                           ],
-                          "sematic": "\n",
+                          "sematic": "",
                           "type": "non-terminal",
                           "value": "block"
                         },
@@ -1400,7 +1400,7 @@
                                   "value": "return_stmt"
                                 }
                               ],
-                              "sematic": "\n",
+                              "sematic": "",
                               "type": "non-terminal",
                               "value": "block"
                             }
@@ -1432,7 +1432,7 @@
                   "value": "unreachable_stmt"
                 }
               ],
-              "sematic": "\n",
+              "sematic": "",
               "type": "non-terminal",
               "value": "block"
             }
@@ -1808,29 +1808,100 @@
                             {
                               "children": [
                                 {
-                                  "sematic": "",
-                                  "type": "terminal",
-                                  "value": "1"
+                                  "children": [
+                                    {
+                                      "sematic": "",
+                                      "type": "terminal",
+                                      "value": "1"
+                                    }
+                                  ],
+                                  "sematic": "\n$().d.literal = $gather_terminal($())\n",
+                                  "type": "non-terminal",
+                                  "value": "digits"
                                 }
                               ],
-                              "sematic": "\n$().d.literal = $gather_terminal($())\n",
+                              "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
                               "type": "non-terminal",
-                              "value": "digits"
+                              "value": "uint_literal"
                             }
                           ],
-                          "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
+                          "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
                           "type": "non-terminal",
-                          "value": "uint_literal"
+                          "value": "primary_expr"
+                        },
+                        {
+                          "children": [
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "<<"
+                            }
+                          ],
+                          "sematic": "\n$().d.op_name = $gather_terminal($());\n",
+                          "type": "non-terminal",
+                          "value": "shift_op"
+                        },
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "sematic": "",
+                                      "type": "terminal",
+                                      "value": "2"
+                                    }
+                                  ],
+                                  "sematic": "\n$().d.literal = $gather_terminal($())\n",
+                                  "type": "non-terminal",
+                                  "value": "digits"
+                                }
+                              ],
+                              "sematic": "\nconst place = $mktmp(\"int\");\n$().d.code = {\n    \"op\": \"put\",\n    \"lhs\": $str_to_uint($(0).d.literal),\n    \"o\": place,\n}\n$().d.val = {\n    \"v\": place,\n    \"type_name\": \"int\",\n};\n",
+                              "type": "non-terminal",
+                              "value": "uint_literal"
+                            }
+                          ],
+                          "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
+                          "type": "non-terminal",
+                          "value": "primary_expr"
                         }
                       ],
-                      "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.val = $(0).d.val\n$().d.code = {\n    \"op\": \"get_literal\",\n    \"lhs\": $(0).d.val.v,\n    \"o\": place,\n}\n$cltmp();\n",
+                      "sematic": "\nconst place = $mktmp($(0).d.val.type_name);\n$().d.code = {\n    \"op\": $(1).d.op_name,\n    \"lhs\": 0,\n    \"rhs\": 2,\n    \"o\": place,\n};\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $(0).d.val.type_name,\n};\n$cltmp();\n$cltmp();\n",
                       "type": "non-terminal",
-                      "value": "primary_expr"
+                      "value": "shift_expr"
                     }
                   ],
                   "sematic": "\n$decl_var($(0).d.name, $(1).d.val.type_name);\n$().d.code = {\n    \"op\": \"=\",\n    \"o\": $(0).d.name,\n    \"val\": $(1).d.val,\n};\n$cltmp();\n",
                   "type": "non-terminal",
                   "value": "decl_and_assign_stmt"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "sematic": "",
+                              "type": "terminal",
+                              "value": "a"
+                            }
+                          ],
+                          "sematic": "\n$().d.name = \"c_\" + $gather_terminal($());\n",
+                          "type": "non-terminal",
+                          "value": "id"
+                        }
+                      ],
+                      "sematic": "\nconst place = $mktmp($type_of_var($(0).d.name));\n$().d.val = {\n    \"v\": place,\n    \"type_name\": $type_of_var($(0).d.name)\n};\n$().d.code = {\n    \"op\": \"get\",\n    \"lhs\": $(0).d.name,\n    \"o\": place,\n}\n",
+                      "type": "non-terminal",
+                      "value": "primary_expr"
+                    }
+                  ],
+                  "sematic": "\n$().d.code = {\n    \"op\": \"echo\",\n    \"val\": $(0).d.val,\n};\n$cltmp();\n",
+                  "type": "non-terminal",
+                  "value": "echo_stmt"
                 },
                 {
                   "children": [
@@ -1989,7 +2060,7 @@
                           "value": "assign_stmt"
                         }
                       ],
-                      "sematic": "\n",
+                      "sematic": "",
                       "type": "non-terminal",
                       "value": "block"
                     }
@@ -2051,7 +2122,7 @@
                   "value": "return_stmt"
                 }
               ],
-              "sematic": "\n",
+              "sematic": "",
               "type": "non-terminal",
               "value": "block"
             }
