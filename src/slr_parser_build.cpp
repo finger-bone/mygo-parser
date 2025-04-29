@@ -411,7 +411,7 @@ void SLR1Parser::build_tables() {
   compute_first_sets();
   compute_follow_sets();
 
-  // 构建ACTION和GOTO表
+  // 构建ACTION
   for (size_t i = 0; i < item_sets.size(); ++i) {
     const auto &item_set = item_sets[i];
 

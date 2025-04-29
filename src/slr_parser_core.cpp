@@ -95,6 +95,10 @@ bool SLR1Parser::handle_error(int state, const SLRSymbol &symbol,
   std::cerr << "Syntax error at position " << input_pos
             << ": unexpected symbol " << symbol.to_string() << " in state "
             << state << std::endl;
+  std::cerr << "Expected one of: ";
+  for (const auto &expected : action_table[state]) {
+    std::cerr << expected.first.to_string() << " ";
+  }
   return false;
 }
 
