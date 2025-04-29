@@ -39,15 +39,15 @@ std::optional<Token> Tokenizer::next_token() {
     position++;
   }
 
-  // 检查是否遇到双引号
-  if (input[position] == '"') {
-    this->in_string_mode = !this->in_string_mode;
+  // 检查是否遇到单引号
+  if (input[position] == '\'') {
+    this->in_char_mode = !this->in_char_mode;
     position++;
-    return Token("\"", grammar::Terminal("\"")); // 返回双引号token
+    return Token("\'", grammar::Terminal("\'")); // 返回单引号token
   }
 
-  if (this->in_string_mode) {
-    // 在字符串模式下，只匹配以反斜杠开头的terminal和单字符terminal
+  if (this->in_char_mode) {
+    // 在字符模式下，只匹配以反斜杠开头的terminal和单字符terminal
     for (const auto &terminal : terminals) {
       const std::string &term_value = terminal.value;
 
@@ -69,7 +69,7 @@ std::optional<Token> Tokenizer::next_token() {
       }
     }
 
-    // 在字符串模式下，如果没有匹配到特殊字符，则作为普通字符处理
+    // 在字符模式下，如果没有匹配到特殊字符，则作为普通字符处理
     std::string char_str(1, input[position]);
     position++;
     return Token(char_str, grammar::Terminal(char_str));
@@ -102,7 +102,7 @@ std::optional<Token> Tokenizer::next_token() {
     std::cerr << "Error: Unexpected character '" << input[position]
               << "' at position " << position << std::endl;
     position++;
-    std::cerr << "Now string mode is " << this->in_string_mode << std::endl;
+    std::cerr << "Now string mode is " << this->in_char_mode << std::endl;
     throw std::runtime_error("Error: Unexpected character");
     return next_token(); // 递归调用，尝试匹配下一个字符
   }
