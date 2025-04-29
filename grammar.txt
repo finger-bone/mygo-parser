@@ -150,7 +150,7 @@ $().d.functions = $gather($(), "func_decl");
 
 [*;] "func_decl_list" -> "func_decl_list" "func_decl" | "func_decl"
 
-[;1,2] "func_decl" -> 'decl' "id" "type" '{}'`
+[;1,2] "func_decl" -> 'func' "id" "type" '{}'`
 $decl_func($(0).d.name, $(1).d.type_name);
 $().d.skip = true;
 `

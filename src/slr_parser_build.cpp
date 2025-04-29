@@ -367,7 +367,7 @@ void SLR1Parser::handle_reduce_action(size_t i, const LR0Item &item) {
 
   if (prod_index != -1) {
     for (const auto &symbol : follow_sets[item.non_terminal]) {
-      if (action_table[i].find(symbol) != action_table[i].end()) {
+      if (action_table[i].find(symbol) != action_table[i].end() && (action_table[i][symbol].type!= ActionType::REDUCE || (action_table[i][symbol].type == ActionType::REDUCE && action_table[i][symbol].value!= prod_index))) {
         std::cerr << "SLR冲突：状态" << i << "，符号" << symbol.to_string()
                   << std::endl;
         std::cerr << "现有动作：" << action_table[i][symbol].to_string()
@@ -388,7 +388,7 @@ void SLR1Parser::handle_accept_action(size_t i) {
 // Helper function to handle shift actions
 void SLR1Parser::handle_shift_action(size_t i, const SLRSymbol &symbol,
                                      int next_state) {
-  if (action_table[i].find(symbol) != action_table[i].end()) {
+  if (action_table[i].find(symbol) != action_table[i].end() && (action_table[i][symbol].type != ActionType::SHIFT || (action_table[i][symbol].type == ActionType::SHIFT && action_table[i][symbol].value != next_state))) {
     std::cerr << "SLR冲突：状态" << i << "，符号" << symbol.to_string()
               << std::endl;
     std::cerr << "现有动作：" << action_table[i][symbol].to_string()

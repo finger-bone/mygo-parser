@@ -10,7 +10,7 @@
                   "children": [
                     {
                       "type": "terminal",
-                      "value": "decl"
+                      "value": "func"
                     },
                     {
                       "children": [

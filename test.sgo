@@ -1,4 +1,4 @@
-decl fib int {}
+func fib int {}
 
 func fib(n int, cache int) int {
     if(*(cache + (n * 4)) != 0) {
