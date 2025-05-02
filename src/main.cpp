@@ -48,7 +48,7 @@ int main() {
       break; // 没有更多token
     }
 
-    std::cout << "[" << token_count << "] " << token->to_string() << std::endl;
+    std::cout << "[" << token_count << "]" << token->to_string() << std::endl;
     tokens.push_back(*token);
     token_count++;
   }

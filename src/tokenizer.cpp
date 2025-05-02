@@ -5,7 +5,7 @@
 namespace tokenizer {
 
 std::string Token::to_string() const {
-  return "Token(terminal=" + terminal.to_string() + ")";
+  return "TK(" + terminal.to_string() + ")";
 }
 
 void Tokenizer::sort_terminals() {
